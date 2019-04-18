@@ -1,0 +1,65 @@
+root {
+    display: block;
+}
+.login {
+    -fx-background-image: url("../images/background.png");
+    -fx-font-size: 16;
+}
+.app {
+    -fx-background-color: #f4f5f7;
+    -fx-background-opacity: 0.5;
+    -fx-font-size: 16;
+}
+
+.menu {
+    display: block;
+}
+
+.label {
+    /*-fx-font-size: 16px;*/
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+}
+
+#welcome-text {
+    -fx-font-size: 32px;
+    -fx-font-family: "Arial Black";
+    -fx-fill: #818181;
+    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+}
+#actiontarget {
+    -fx-fill: FIREBRICK;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+}
+
+Button {
+    /*-fx-font-size: 20px;*/
+    -fx-text-fill: white;
+    -fx-font-family: "Arial Narrow";
+    -fx-font-weight: bold;
+    -fx-background-color: linear-gradient(#61a2b1, #2A5058);
+    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+
+.login-button {
+    -fx-font-size: 20px;
+}
+
+#topHbox {
+    -fx-border-style: dotted;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: gray;
+    -fx-font-weight: bold;
+}
+
+.treeview {
+    /*-fx-skin: "com.sun.javafx.scene.control.skin.TreeViewSkin";*/
+    /*-fx-background-color: green, -fx-control-inner-background;*/
+    /*-fx-background-insets: 0, 1;*/
+
+    /* There is some oddness if padding is in em values rather than pixels,
+       in particular, the left border of the control doesn't show. */
+    /*-fx-padding: 1; !* 0.083333em; *!*/
+}
