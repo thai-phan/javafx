@@ -24,36 +24,11 @@ public class SelectionDataSourceController extends Main {
     }
     @FXML
     protected void saveCampaign(ActionEvent event) throws Exception {
-        setScene(CAMPAIGN_LIST_FXML);
+        setSceneByView(CAMPAIGN_LIST_FXML);
     }
 
     private void loadDataFromAPI() {
-        loadTableList();
+
     }
 
-    private void loadTableList() {
-        String url = SERVER_URL + "/dbs/list/dbname?link_id=" + getLinkId();
-        String responseForDatabaseList = getDataFromAPI(url);
-        DatabaseListModel databaseListModel = gson.fromJson(responseForDatabaseList, DatabaseListModel.class);
-        ObservableList<String> databaseList = FXCollections.observableArrayList();
-        databaseListModel.getResultListTable().getDbNames().forEach(index -> databaseList.add(index.getDbname()));
-        databaseListComboBox.setItems(databaseList);
-        if (databaseListComboBox.getItems().size() >= 1) {
-            databaseListComboBox.getSelectionModel().select(0);
-            String selectedDBName = databaseListComboBox.getSelectionModel().getSelectedItem().toString();
-            loadViewListByDatabaseName(selectedDBName);
-            databaseListComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-                loadViewListByDatabaseName(newVal.toString());
-            });
-        }
-    }
-    private void loadViewListByDatabaseName(String databaseName) {
-        String urlForViewList = SERVER_URL + "/dbs/list/view?link_id=" + getLinkId() + "&dbname=" + databaseName;
-        String responseForViewList = getDataFromAPI(urlForViewList);
-        ViewListModel viewListModel = gson.fromJson(responseForViewList, ViewListModel.class);
-        ObservableList<String> viewList = FXCollections.observableArrayList();
-        viewListModel.getResultList().getSetViews().forEach(index -> viewList.add(index.getTableName()));
-        viewListComboBox.setItems(viewList);
-        viewListComboBox.getSelectionModel().select(0);
-    }
 }

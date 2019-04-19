@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1900.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CampaignListController">
+<BorderPane prefHeight="1080.0" prefWidth="1900.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CampaignListController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -198,7 +198,7 @@
          <top>
                    <HBox alignment="CENTER_RIGHT" prefHeight="54.0" prefWidth="1180.0" BorderPane.alignment="CENTER">
                <children>
-                     <Button fx:id="logoutButton" onAction="#onLogout" prefHeight="36.0" prefWidth="90.0" text="Logout">
+                     <Button fx:id="logoutButton" onAction="#logoutByExpireSession" prefHeight="36.0" prefWidth="90.0" text="Logout">
                      <HBox.margin>
                         <Insets right="5.0" />
                      </HBox.margin>

@@ -44,7 +44,7 @@ public class LoginController extends Main {
 
     private boolean validateUser(String username, String password) {
         String url = SERVER_URL + "/user/login?userid=" + username +"&passwd="+ password;
-        String response = getDataFromAPI(url);
+        String response = getResponseFromAPI(url);
         if (response != null) {
             LoginModel loginModel = gson.fromJson(response, LoginModel.class);
             String errorMsg = String.valueOf(loginModel.getResultinfo().getErrCd());
@@ -61,7 +61,7 @@ public class LoginController extends Main {
     }
 
     private void changePageCampaignList() throws Exception {
-        setScene(CAMPAIGN_LIST_FXML);
+        setSceneByView(CAMPAIGN_LIST_FXML);
         getWindow().setMaximized(true);
     }
 }

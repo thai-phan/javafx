@@ -72,10 +72,7 @@ public class Main extends Application {
 
     public void stop() {}
 
-    protected void updateWindowAfterLogin() {
-
-    }
-    protected void setScene(String resourceName) throws IOException {
+    protected void setSceneByView(String resourceName) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource(resourceName));
         getScene().setRoot(root);
     }
@@ -86,9 +83,22 @@ public class Main extends Application {
 
     public static Gson gson = new Gson();
 
+    public void logoutByExpireSession() throws IOException {
+        // dialog
+        logout();
+    }
+
+    public void logout() throws IOException {
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        getWindow().setWidth(WIDTH);
+        getWindow().setHeight(HEIGHT);
+        getWindow().setX((primScreenBounds.getWidth() - WIDTH) / 2);
+        getWindow().setY((primScreenBounds.getHeight() - HEIGHT) / 2);
+        setSceneByView(LOGIN_FXML);
+    }
     public TreeItem<ControlBindingObject> loadFolderTreeItem(ControlBindingObject masterFolder) throws IOException {
         String urlForSubFolder = SERVER_URL + "/cm/list/folder?link_id=" + getLinkId() +"&parentid=" + masterFolder.getId();
-        String responseForSubFolder = getDataFromAPI(urlForSubFolder);
+        String responseForSubFolder = getResponseFromAPI(urlForSubFolder);
         MasterFolderModel subFolderObj = gson.fromJson(responseForSubFolder, MasterFolderModel.class);
         if (subFolderObj.getResultinfo().getErrCd() == 0) {
             TreeItem<ControlBindingObject> item = new TreeItem<>(masterFolder);
@@ -97,7 +107,7 @@ public class Main extends Application {
                             new ControlBindingObject(index.getDisplay_Name(), index.getFolder_Id()))));
             return item;
         } else if (subFolderObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            setScene(LOGIN_FXML);
+            setSceneByView(LOGIN_FXML);
             Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
             getWindow().setWidth(WIDTH);
             getWindow().setHeight(HEIGHT);
@@ -108,7 +118,7 @@ public class Main extends Application {
         return null;
     }
 
-    protected String getDataFromAPI(String url) {
+    protected String getResponseFromAPI(String url) {
         try {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
