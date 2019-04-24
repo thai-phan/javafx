@@ -1,0 +1,6 @@
+#Mon Apr 22 11:56:28 KST 2019
+USERNAME=trm
+SERVER_URL=http\://192.168.1.81\:8180/rest
+TITLE=JavaFx
+ICON=/images/icons8-java-96.png
+PASSWORD=12345678901

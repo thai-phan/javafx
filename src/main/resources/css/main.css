@@ -7,20 +7,20 @@ root {
 }
 .app {
     -fx-background-color: #f4f5f7;
-    -fx-background-opacity: 0.5;
+    -fx-background-opacity: 0.5px;
     -fx-font-size: 16;
 }
 
-.menu {
-    display: block;
-}
+/*.menu {*/
+    /*display: block;*/
+/*}*/
 
-.label {
-    /*-fx-font-size: 16px;*/
-    -fx-font-weight: bold;
-    -fx-text-fill: #333333;
-    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
-}
+/*.label {*/
+    /*!*-fx-font-size: 16px;*!*/
+    /*-fx-font-weight: bold;*/
+    /*-fx-text-fill: #333333;*/
+    /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/
+/*}*/
 
 #welcome-text {
     -fx-font-size: 32px;

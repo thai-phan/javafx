@@ -2,6 +2,7 @@
 
 <?import java.net.URL?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
@@ -11,7 +12,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Text?>
 
-<GridPane alignment="center" hgap="10" prefHeight="400.0" prefWidth="600.0" styleClass="login" vgap="10" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.LoginController">
+<GridPane alignment="center" hgap="10" prefHeight="400.0" prefWidth="600.0" styleClass="login" vgap="10" xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.LoginController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -20,10 +22,15 @@
     <TextField fx:id="username" prefHeight="25.0" prefWidth="210.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
     <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
     <PasswordField fx:id="password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-    <HBox alignment="bottom_right" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="4">
+    <HBox alignment="bottom_right" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="5">
         <Button fx:id="loginButton" onAction="#onLogin" prefHeight="37.0" prefWidth="93.0" styleClass="login-button" text="Sign In" />
     </HBox>
-    <Text fx:id="loginNotification" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+    <Text fx:id="loginNotification" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+   <HBox alignment="CENTER_RIGHT" GridPane.columnIndex="1" GridPane.rowIndex="4">
+      <children>
+         <CheckBox fx:id="rememberMeCheckBox" mnemonicParsing="false" text="Remember me" textAlignment="RIGHT" />
+      </children>
+   </HBox>
    <columnConstraints>
       <ColumnConstraints />
       <ColumnConstraints />
@@ -33,6 +40,7 @@
       <RowConstraints />
       <RowConstraints />
       <RowConstraints />
+      <RowConstraints maxHeight="37.0" minHeight="12.0" prefHeight="37.0" />
       <RowConstraints maxHeight="37.0" minHeight="12.0" prefHeight="37.0" />
       <RowConstraints maxHeight="25.0" minHeight="0.0" prefHeight="0.0" />
       <RowConstraints />

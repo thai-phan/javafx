@@ -198,7 +198,7 @@
          <top>
                    <HBox alignment="CENTER_RIGHT" prefHeight="54.0" prefWidth="1180.0" BorderPane.alignment="CENTER">
                <children>
-                     <Button fx:id="logoutButton" onAction="#logoutByExpireSession" prefHeight="36.0" prefWidth="90.0" text="Logout">
+                     <Button fx:id="logoutButton" onAction="#onLogout" prefHeight="36.0" prefWidth="90.0" text="Logout">
                      <HBox.margin>
                         <Insets right="5.0" />
                      </HBox.margin>

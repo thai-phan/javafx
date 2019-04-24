@@ -1,10 +1,11 @@
 package main.java.Models.ModelObject;
 
-public class ControlBindingObject {
+//CtrlBdgObj
+public class ControlBindingObj {
     private String name;
     private String id;
 
-    public ControlBindingObject(String name, String id) {
+    public ControlBindingObj(String name, String id) {
         this.name = name;
         this.id = id;
     }

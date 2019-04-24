@@ -7,11 +7,9 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import main.java.Main;
-import main.java.Models.ModelObject.ControlBindingObject;
+import main.java.Models.ModelObject.ControlBindingObj;
 import main.java.Models.ModelObject.Resultinfo;
 
-import java.awt.event.ActionEvent;
-import java.beans.EventHandler;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -23,8 +21,9 @@ public class FolderSelectionController extends Main {
     @FXML
     private TextField newDescription;
     @FXML
-    private TreeView<ControlBindingObject> selectionFolderTree;
+    private TreeView<ControlBindingObj> selectionFolderTree;
 
+    private CampaignListController campaignListController;
     private Stage currentStage;
     private String oldCampId;
 
@@ -36,35 +35,45 @@ public class FolderSelectionController extends Main {
         return oldCampId;
     }
 
+    public void setCampaignListController(CampaignListController campaignListController) {
+        this.campaignListController = campaignListController;
+    }
+
+    public CampaignListController getCampaignListController() {
+        return campaignListController;
+    }
+
     public void getSelectedCampNameAndDescription(String name, String description) {
         newName.setText("Copy Of " + name);
         newDescription.setText(description);
     }
 
     @FXML
-    public void onDuplicateCampaign() {
+    public void onDuplicateCampaign() throws IOException {
         String newCampName = newName.getText();
         String newCampDescription = newDescription.getText();
         String newFolderId = selectionFolderTree.getSelectionModel().getSelectedItem().getValue().getId();
         String urlForDuplicateCampaign = null;
         try {
-            urlForDuplicateCampaign = SERVER_URL + "/cm/copy?link_id=" + getLinkId() + "&old_cm_id=" + getOldCampId()
+            urlForDuplicateCampaign = SERVER_URL + "/cm/copy?link_id=" + linkId + "&old_cm_id=" + getOldCampId()
                     + "&name=" + URLEncoder.encode(newCampName, "utf-8") + "&desc=" + URLEncoder.encode(newCampDescription, "utf-8")
                     + "&folderid=" + newFolderId;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        lg(urlForDuplicateCampaign);
         String responseForDuplicateCampaign = getResponseFromAPI(urlForDuplicateCampaign);
         Resultinfo resultinfo = gson.fromJson(responseForDuplicateCampaign, Resultinfo.class);
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
             currentStage = (Stage) selectionFolderTree.getScene().getWindow();
+            ControlBindingObj selectedMasterFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getParent().getValue();
+            ControlBindingObj selectedSubFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getValue();
+            campaignListController.loadMasterFolderList(selectedMasterFolder, selectedSubFolder, newCampName);
             currentStage.close();
         } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString());
         }
-        lg(responseForDuplicateCampaign);
-
     }
 
     @FXML
@@ -77,16 +86,16 @@ public class FolderSelectionController extends Main {
     public void initialize() {
     }
 
-    public void loadTreeFolderList(ComboBox<ControlBindingObject> masterFolder){
-        TreeItem<ControlBindingObject> folderTreeRoot = new TreeItem<>();
+    public void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){
+        TreeItem<ControlBindingObj> folderTreeRoot = new TreeItem<>();
         masterFolder.getItems()
                 .forEach(index -> folderTreeRoot.getChildren().add(loadMasterFolderTreeItem(index)));
         selectionFolderTree.setRoot(folderTreeRoot);
         selectionFolderTree.setShowRoot(false);
     }
 
-    private TreeItem<ControlBindingObject> loadMasterFolderTreeItem(ControlBindingObject index) {
-        TreeItem<ControlBindingObject> masterFolder = null;
+    private TreeItem<ControlBindingObj> loadMasterFolderTreeItem(ControlBindingObj index) {
+        TreeItem<ControlBindingObj> masterFolder = null;
         try {
             masterFolder = loadFolderTreeItem(index);
         } catch (IOException e) {

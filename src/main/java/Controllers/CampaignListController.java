@@ -1,26 +1,24 @@
 package main.java.Controllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.CampaignListModel;
 import main.java.Models.MasterFolderModel;
 import main.java.Models.ModelObject.CmDatas;
-import main.java.Models.ModelObject.ControlBindingObject;
+import main.java.Models.ModelObject.ControlBindingObj;
 import main.java.Models.ModelObject.Resultinfo;
 import main.java.Models.StatusListModel;
 
@@ -33,37 +31,37 @@ import java.util.Optional;
 
 public class CampaignListController extends Main
 {
-    public static final String STATUS_ACTIVE = "1";
-    public static final String STATUS_INACTIVE = "2";
-    public static final String STATUS_DRAFT = "0";
+    private static final String STATUS_ACTIVE = "1";
+    private static final String STATUS_INACTIVE = "2";
+    private static final String STATUS_DRAFT = "0";
     @FXML
-    private TreeView<ControlBindingObject> folderTree;
+    private TreeView<ControlBindingObj> folderTree;
     @FXML
-    private ComboBox<ControlBindingObject> masterFolderComboBox;
+    private ComboBox<ControlBindingObj> masterFolderComboBox;
     @FXML
     private TableView<CmDatas> campaignTableView;
     @FXML
-    private TableColumn campClName;
+    private TableColumn<CmDatas, String> campClName;
     @FXML
-    private TableColumn campClDesc;
+    private TableColumn<CmDatas, String> campClDesc;
     @FXML
-    private TableColumn campClStatus;
+    private TableColumn<CmDatas, String> campClStatus;
     @FXML
-    private TableColumn campClFolder;
+    private TableColumn<CmDatas, String> campClFolder;
     @FXML
-    private TableColumn campClCreBy;
+    private TableColumn<CmDatas, String> campClCreBy;
     @FXML
-    private TableColumn campClCreOn;
+    private TableColumn<CmDatas, String> campClCreOn;
     @FXML
-    private TableColumn campClModBy;
+    private TableColumn<CmDatas, String> campClModBy;
     @FXML
-    private TableColumn campClModOn;
+    private TableColumn<CmDatas, String> campClModOn;
     @FXML
     private Text recordsNumber;
     @FXML
     private TextField campaignSearch;
     @FXML
-    private ComboBox<ControlBindingObject> statusListComboBox;
+    private ComboBox<ControlBindingObj> statusListComboBox;
     @FXML
     private Button activeCampButton;
     @FXML
@@ -77,26 +75,29 @@ public class CampaignListController extends Main
     @FXML
     private Button copyCampButton;
 
-    private static ControlBindingObject selectedMasterFolder;
 
-    public static void setSelectedMasterFolder(ControlBindingObject selectedMasterFolderId) {
-        CampaignListController.selectedMasterFolder = selectedMasterFolderId;
+    private static ControlBindingObj selectedMasterFolder;
+
+    @Override
+    public void initialize() {
+        configurationView();
+        try {
+            loadDataFromAPI();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        addListener();
     }
-
-    public static ControlBindingObject getSelectedMasterFolder() {
-        return selectedMasterFolder;
-    }
-
 
     @FXML
     private void editCampaign(ActionEvent event) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
-        Region root = (Region) loader.load();
+        Region root = loader.load();
         CommunicationManagerController communicationManagerController = loader.getController();
         CmDatas campaignSelected = campaignTableView.getSelectionModel().getSelectedItem();
         communicationManagerController.setCampaignId(campaignSelected.getEntity_Id());
         communicationManagerController.initialize();
-        getScene().setRoot(root);
+        scene.setRoot(root);
     }
 
     @FXML
@@ -105,7 +106,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    private void showAddFolderDialog(ActionEvent event) throws IOException {
+    private void showAddFolderDialog() throws IOException {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Add folder");
         dialog.setHeaderText("Enter new folder name");
@@ -117,7 +118,7 @@ public class CampaignListController extends Main
 
     @FXML
     public void showRenameFolderDialog() throws IOException {
-        ControlBindingObject folderChanging = folderTree.getSelectionModel().getSelectedItems().get(0).getValue();
+        ControlBindingObj folderChanging = folderTree.getSelectionModel().getSelectedItems().get(0).getValue();
         TextInputDialog dialog = new TextInputDialog(folderChanging.getName());
         dialog.setTitle("Rename folder");
         dialog.setHeaderText("Enter new folder name");
@@ -130,15 +131,17 @@ public class CampaignListController extends Main
     @FXML
     public void onCopyCampaign() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FOLDER_SELECTION));
-        Region root = (Region) loader.load();
+        Region root = loader.load();
         Stage secondStage = new Stage();
-        FolderSelectionController folderSelectionController = loader.<FolderSelectionController>getController();
+        FolderSelectionController folderSelectionController = loader.getController();
         folderSelectionController.loadTreeFolderList(masterFolderComboBox);
         CmDatas selectedCampaign = campaignTableView.getSelectionModel().getSelectedItem();
         folderSelectionController.setOldCampId(selectedCampaign.getEntity_Id());
+        folderSelectionController.setCampaignListController(this);
         folderSelectionController.getSelectedCampNameAndDescription(selectedCampaign.getName(), selectedCampaign.getDescription());
         secondStage.setScene(new Scene(root));
-        secondStage.show();
+        secondStage.initModality(Modality.APPLICATION_MODAL);
+        secondStage.showAndWait();
     }
 
     @FXML
@@ -166,31 +169,27 @@ public class CampaignListController extends Main
         changeCampaignStatus(STATUS_DRAFT);
     }
 
-    @Override
-    public void initialize() {
-        configurationView();
-        try {
-            loadDataFromAPI();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        addListener();
-    }
+
 
     private void loadDataFromAPI() throws IOException {
         loadStatusList();
-        loadMasterFolderList();
+        loadMasterFolderList(null, null, null);
     }
 
     private void configurationView() {
-        campClName.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("name"));
-        campClDesc.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("description"));
-        campClStatus.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("status_Cd_name"));
-        campClFolder.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("path"));
-        campClCreBy.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("create_User"));
-        campClCreOn.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("create_Dttm"));
-        campClModBy.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("update_User"));
-        campClModOn.setCellValueFactory(new PropertyValueFactory<CmDatas, String>("update_Dttm"));
+        campClName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        campClDesc.setCellValueFactory(new PropertyValueFactory<>("description"));
+        campClStatus.setCellValueFactory(new PropertyValueFactory<>("status_Cd_name"));
+        campClFolder.setCellValueFactory(new PropertyValueFactory<>("path"));
+        campClCreBy.setCellValueFactory(new PropertyValueFactory<>("create_User"));
+        campClCreOn.setCellValueFactory(new PropertyValueFactory<>("create_Dttm"));
+        campClModBy.setCellValueFactory(new PropertyValueFactory<>("update_User"));
+        campClModOn.setCellValueFactory(new PropertyValueFactory<>("update_Dttm"));
+        disableListCommandButton();
+
+    }
+
+    private void disableListCommandButton() {
         deactiveCampButton.setDisable(true);
         activeCampButton.setDisable(true);
         submitCampButton.setDisable(true);
@@ -202,104 +201,111 @@ public class CampaignListController extends Main
     private void addListener() {
         masterFolderComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal != null) {
-                setSelectedMasterFolder(newVal);
+                selectedMasterFolder = newVal;
                 try {
-                    loadSubFolderListOnTree(null);
+                    loadSubFolderListOnTree(null, null);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         });
-        folderTree.setOnMouseClicked(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                if(event.getButton().equals(MouseButton.PRIMARY)) {
-                    if(event.getClickCount() == 2) {
-                        lg(folderTree.getSelectionModel().getSelectedItem().getValue().getId());
-                        try {
-                            loadCampaignTable(null);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+        folderTree.setOnMouseClicked(event -> {
+            if(event.getButton().equals(MouseButton.PRIMARY)) {
+                if(event.getClickCount() == 2) {
+                    disableListCommandButton();
+                    try {
+                        loadCampaignTable(null);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 }
             }
         });
         campaignTableView.getSelectionModel().selectedItemProperty().addListener(
-            new ChangeListener<CmDatas>() {
-                @Override
-                public void changed(ObservableValue<? extends CmDatas> observable, CmDatas oldValue, CmDatas newValue) {
+                (observable, oldValue, newValue) -> {
                     if (newValue != null) {
-                        lg(newValue.getEntity_Id());
-                        copyCampButton.setDisable(false);
-                        lg(newValue.getStatus_Cd());
-                        if (newValue.getStatus_Cd().equals(STATUS_ACTIVE)) {
-                            deactiveCampButton.setDisable(false);
-                            rejectCampButton.setDisable(true);
-                            submitCampButton.setDisable(true);
-                            activeCampButton.setDisable(true);
-                            editCampButton.setDisable(true);
-                        } else if (newValue.getStatus_Cd().equals(STATUS_INACTIVE)) {
-                            activeCampButton.setDisable(false);
-                            rejectCampButton.setDisable(false);
-                            deactiveCampButton.setDisable(true);
-                            submitCampButton.setDisable(true);
-                            editCampButton.setDisable(true);
-                        } else if (newValue.getStatus_Cd().equals(STATUS_DRAFT)){
-                            deactiveCampButton.setDisable(true);
-                            activeCampButton.setDisable(true);
-                            rejectCampButton.setDisable(true);
-                            submitCampButton.setDisable(false);
-                            editCampButton.setDisable(false);
-                        } else {
-                            deactiveCampButton.setDisable(true);
-                            activeCampButton.setDisable(true);
-                            rejectCampButton.setDisable(true);
-                            submitCampButton.setDisable(true);
-                            editCampButton.setDisable(true);
-                        }
+                        updateStatusCommandButton(newValue.getStatus_Cd());
                     }
                 }
-            }
         );
     }
 
-    private void loadMasterFolderList() throws IOException {
-        String urlForMasterFolder = SERVER_URL + "/cm/list/folder_up?link_id=" + getLinkId();
+    private void updateStatusCommandButton(String status) {
+        copyCampButton.setDisable(false);
+        switch (status) {
+            case STATUS_ACTIVE:
+                deactiveCampButton.setDisable(false);
+                rejectCampButton.setDisable(true);
+                submitCampButton.setDisable(true);
+                activeCampButton.setDisable(true);
+                editCampButton.setDisable(true);
+                break;
+            case STATUS_INACTIVE:
+                activeCampButton.setDisable(false);
+                rejectCampButton.setDisable(false);
+                deactiveCampButton.setDisable(true);
+                submitCampButton.setDisable(true);
+                editCampButton.setDisable(true);
+                break;
+            case STATUS_DRAFT:
+                deactiveCampButton.setDisable(true);
+                activeCampButton.setDisable(true);
+                rejectCampButton.setDisable(true);
+                submitCampButton.setDisable(false);
+                editCampButton.setDisable(false);
+                break;
+            default:
+                deactiveCampButton.setDisable(true);
+                activeCampButton.setDisable(true);
+                rejectCampButton.setDisable(true);
+                submitCampButton.setDisable(true);
+                editCampButton.setDisable(true);
+                break;
+        }
+    }
+
+    public void loadMasterFolderList(ControlBindingObj selectedMasterParam, ControlBindingObj selectedSubParam, String campaignName) throws IOException {
+        String urlForMasterFolder = SERVER_URL + "/cm/list/folder_up?link_id=" + linkId;
         String response = getResponseFromAPI(urlForMasterFolder);
         MasterFolderModel masterFolderObj = gson.fromJson(response, MasterFolderModel.class);
         if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
-            ObservableList<ControlBindingObject> folderList = FXCollections.observableArrayList();
+            ObservableList<ControlBindingObj> folderList = FXCollections.observableArrayList();
             masterFolderObj.getCmFolderList().getCmFolderData().
-                    forEach(index -> folderList.add(new ControlBindingObject(index.getName(), index.getFolder_Id())));
+                    forEach(index -> folderList.add(new ControlBindingObj(index.getName(), index.getFolder_Id())));
             masterFolderComboBox.setItems(folderList);
-            if (masterFolderComboBox.getItems().size() >= 1) {
+            if (selectedMasterParam != null) {
+                masterFolderComboBox.getSelectionModel().select(selectedMasterParam);
+                selectedMasterFolder = selectedMasterParam;
+                loadSubFolderListOnTree(selectedSubParam.getName(), campaignName);
+            } else {
                 masterFolderComboBox.getSelectionModel().selectFirst();
-                setSelectedMasterFolder(masterFolderComboBox.getSelectionModel().getSelectedItem());
-                loadSubFolderListOnTree(null);
+                selectedMasterFolder = masterFolderComboBox.getSelectionModel().getSelectedItem();
+                loadSubFolderListOnTree(null, null);
             }
         } else if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, masterFolderObj.getResultinfo().getErrString());
         }
     }
 
 
-    private void loadSubFolderListOnTree(String selectedFolderName) throws IOException {
-        TreeItem<ControlBindingObject> item = loadFolderTreeItem(getSelectedMasterFolder());
+    private void loadSubFolderListOnTree(String selectedFolderName, String campaignName) throws IOException {
+        TreeItem<ControlBindingObj> item = loadFolderTreeItem(selectedMasterFolder);
         folderTree.setRoot(item);
         folderTree.setShowRoot(false);
         if (selectedFolderName == null) {
             folderTree.getSelectionModel().selectFirst();
         } else {
-            TreeItem<ControlBindingObject> selectedFolderItem = item.getChildren().stream().
-                    filter(index -> index.getValue().getName().equals(selectedFolderName))
+            TreeItem<ControlBindingObj> selectedFolderItem = item.getChildren().stream()
+                    .filter(index -> index.getValue().getName().equals(selectedFolderName))
                     .findAny()
                     .orElse(null);
             if (selectedFolderItem != null) {
                 folderTree.getSelectionModel().select(selectedFolderItem);
             }
         }
-        loadCampaignTable(null);
+        loadCampaignTable(campaignName);
     }
 
     private void loadCampaignTable(String selectedCampaignId) throws IOException {
@@ -309,13 +315,12 @@ public class CampaignListController extends Main
         String nameSearch = campaignSearch.getText() != null ? campaignSearch.getText() : "";
         String urlForCampaignList = null;
         try {
-            urlForCampaignList = SERVER_URL + "/cm/list?link_id=" + getLinkId() + "&folderid=" + subFolderId +
+            urlForCampaignList = SERVER_URL + "/cm/list?link_id=" + linkId + "&folderid=" + subFolderId +
                     "&statuscd=" + statusId + "&cmname=" + URLEncoder.encode(nameSearch, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         String responseForCampList = getResponseFromAPI(urlForCampaignList);
-        lg(responseForCampList);
         CampaignListModel campListObj = gson.fromJson(responseForCampList, CampaignListModel.class);
         if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
             ObservableList<CmDatas> campListObs = FXCollections.observableArrayList();
@@ -327,82 +332,86 @@ public class CampaignListController extends Main
             campaignTableView.setItems(campListObs);
             if (selectedCampaignId != null) {
                 CmDatas cmDatas = campaignTableView.getItems().stream()
-                        .filter(index -> index.getEntity_Id().equals(selectedCampaignId))
+                        .filter(index -> index.getName().equals(selectedCampaignId))
                         .findAny()
                         .orElse(null);
                 if (cmDatas != null) {
                     campaignTableView.getSelectionModel().select(cmDatas);
-                };
+                }
             } else {
                 campaignTableView.getSelectionModel().selectFirst();
             }
-//        campaignTableView.setColumnResizePolicy(campaignTableView.UNCONSTRAINED_RESIZE_POLICY);
+            updateStatusCommandButton(campaignTableView.getSelectionModel().getSelectedItem().getStatus_Cd());
             recordsNumber.setText(campListObj.getCmList().getCnt());
         } else if (campListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession();
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, campListObj.getResultinfo().getErrString());
         }
-
     }
 
     private void addFolder(String folderName) throws IOException {
         String urlForAddFolder = null;
         try {
-            urlForAddFolder = SERVER_URL + "/cm/ins/folder?link_id=" + getLinkId() +
-                    "&parentfolderId=" + getSelectedMasterFolder().getId() + "&name=" + URLEncoder.encode(folderName, "UTF-8");
+            urlForAddFolder = SERVER_URL + "/cm/ins/folder?link_id=" + linkId +
+                    "&parentfolderId=" + selectedMasterFolder.getId() + "&name=" + URLEncoder.encode(folderName, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         String responseForAddFolder = getResponseFromAPI(urlForAddFolder);
         Resultinfo resultinfo = gson.fromJson(responseForAddFolder, Resultinfo.class);
-        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            loadSubFolderListOnTree(folderName);
-        } else if(resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession();
-        }
+        afterFolderAction(resultinfo, folderName);
     }
 
     private void renameFolder(String newName, String folderId) throws IOException {
         String urlForRenameFolder = null;
         try {
-            urlForRenameFolder = SERVER_URL + "/cm/update/folder_name?link_id=" + getLinkId() + "&folderid=" + folderId + "&name=" + URLEncoder.encode(newName, "UTF-8");
+            urlForRenameFolder = SERVER_URL + "/cm/update/folder_name?link_id=" + linkId + "&folderid=" + folderId + "&name=" + URLEncoder.encode(newName, "UTF-8");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
         String responseForRenameFolder = getResponseFromAPI(urlForRenameFolder);
         Resultinfo resultinfo = gson.fromJson(responseForRenameFolder, Resultinfo.class);
+        afterFolderAction(resultinfo, newName);
+    }
+
+    private void afterFolderAction(Resultinfo resultinfo, String name) throws IOException {
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            loadSubFolderListOnTree(newName);
+            loadSubFolderListOnTree(name, null);
         } else if(resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession();
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString());
         }
     }
 
     private void loadStatusList() throws IOException {
-        String urlForStatusList = SERVER_URL + "/dbs/list/cd?link_id=" + getLinkId() + "&cdtype=1";
+        String urlForStatusList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=1";
         String responseForStatusList = getResponseFromAPI(urlForStatusList);
         StatusListModel statusListModel = gson.fromJson(responseForStatusList,  StatusListModel.class);
         if (statusListModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
-            ObservableList<ControlBindingObject> statusList = FXCollections.observableArrayList();
-            statusListModel.getCdList().getCds().forEach(index -> statusList.add(new ControlBindingObject(index.getName(), index.getCd())));
+            ObservableList<ControlBindingObj> statusList = FXCollections.observableArrayList();
+            statusListModel.getCdList().getCds().forEach(index -> statusList.add(new ControlBindingObj(index.getName(), index.getCd())));
             statusListComboBox.setItems(statusList);
-            if (statusListComboBox.getItems().size() >= 1) {
-                statusListComboBox.getSelectionModel().selectFirst();
-            }
+            statusListComboBox.getSelectionModel().selectFirst();
         } else if(statusListModel.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession();
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, statusListModel.getResultinfo().getErrString());
         }
-
     }
 
     private void changeCampaignStatus(String status) throws IOException {
         String campaignId = campaignTableView.getSelectionModel().getSelectedItem().getEntity_Id();
-        String urlForChangeStatus = SERVER_URL + "/cm/change/status?link_id=" + getLinkId() + "&cm_id=" + campaignId + "&statuscd=" + status;
+        String urlForChangeStatus = SERVER_URL + "/cm/change/status?link_id=" + linkId + "&cm_id=" + campaignId + "&statuscd=" + status;
         String responseForChangeStatus = getResponseFromAPI(urlForChangeStatus);
         Resultinfo resultinfo = gson.fromJson(responseForChangeStatus, Resultinfo.class);
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            loadCampaignTable(campaignId);
+            loadCampaignTable(campaignTableView.getSelectionModel().getSelectedItem().getName());
         } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession();
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+        } else {
+            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString());
         }
     }
 }
