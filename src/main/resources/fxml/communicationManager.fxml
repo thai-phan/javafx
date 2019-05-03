@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="1000.0" prefWidth="1400.0" styleClass="app" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CommunicationManagerController">
+<BorderPane prefHeight="1000.0" prefWidth="1400.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CommunicationManagerController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -68,7 +68,7 @@
                <right>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#saveCampaignName" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                        <Button fx:id="saveCampNameBtn" mnemonicParsing="false" onAction="#saveCampaignName" prefHeight="36.0" prefWidth="100.0" text="Save" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" right="20.0" />
@@ -154,7 +154,7 @@
                <right>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onSaveCampSchedule" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                        <Button fx:id="saveCampScheduleBtn" mnemonicParsing="false" onAction="#onSaveCampSchedule" prefHeight="36.0" prefWidth="100.0" text="Save" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" right="20.0" />
@@ -166,7 +166,7 @@
                <center>
                   <VBox prefHeight="460.0" prefWidth="1601.0">
                      <children>
-                        <VBox prefHeight="244.0" prefWidth="1158.0">
+                        <VBox prefHeight="225.0" prefWidth="1142.0">
                            <children>
                               <HBox alignment="CENTER_LEFT" prefHeight="60.0">
                                  <children>
@@ -315,7 +315,7 @@
                                     </HBox>
                                  </children>
                               </VBox>
-                              <VBox fx:id="yearlyOptionList" layoutX="1000.0" prefHeight="183.0" prefWidth="796.0">
+                              <VBox fx:id="yearlyOptionList" layoutX="1000.0" prefHeight="183.0" prefWidth="796.0" visible="false">
                                  <children>
                                     <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="78.0" prefHeight="44.0" prefWidth="200.0">
                                        <children>
@@ -352,7 +352,7 @@
                <right>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="463.0" prefWidth="196.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onSaveCampFrequencyOpt" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                        <Button fx:id="saveCampFreqBtn" mnemonicParsing="false" onAction="#onSaveCampFrequencyOpt" prefHeight="36.0" prefWidth="100.0" text="Save" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" right="20.0" />
@@ -367,18 +367,30 @@
                 <center>
                     <HBox alignment="CENTER_LEFT" prefHeight="74.0" prefWidth="1678.0" BorderPane.alignment="CENTER">
                         <children>
-                            <HBox alignment="CENTER_LEFT" prefHeight="65.0" prefWidth="580.0">
+                            <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="430.0">
                                 <children>
                                     <Text text="Database" wrappingWidth="120.0" />
-                                    <ComboBox fx:id="databaseListComboBox" prefHeight="37.0" prefWidth="340.0" />
+                                    <ComboBox fx:id="databaseListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                 </children>
                             </HBox>
-                            <HBox alignment="CENTER_LEFT" prefHeight="67.0" prefWidth="580.0">
+                            <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="430.0">
                                 <children>
-                                    <Text text="View" wrappingWidth="120.0" />
-                                    <ComboBox fx:id="viewListComboBox" prefHeight="37.0" prefWidth="340.0" />
+                                    <Text text="View" wrappingWidth="120.0">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin></Text>
+                                    <ComboBox fx:id="viewListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                 </children>
                             </HBox>
+                        <HBox alignment="CENTER" layoutX="599.0" layoutY="10.0" prefHeight="76.0" prefWidth="142.0">
+                           <children>
+                              <Button fx:id="explainDbBtn" mnemonicParsing="false" onAction="#onExplainDatabase" prefHeight="36.0" prefWidth="100.0" text="Explain">
+                                 <HBox.margin>
+                                    <Insets left="5.0" right="5.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children>
+                        </HBox>
                         </children>
                      <padding>
                         <Insets left="20.0" right="20.0" />
@@ -388,7 +400,7 @@
                <right>
                   <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onSaveCampDatabase" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                        <Button fx:id="saveCampDbBtn" mnemonicParsing="false" onAction="#onSaveCampDatabase" prefHeight="36.0" prefWidth="100.0" text="Save" />
                      </children>
                      <padding>
                         <Insets bottom="10.0" right="20.0" />

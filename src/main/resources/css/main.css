@@ -11,16 +11,10 @@ root {
     -fx-font-size: 16;
 }
 
-/*.menu {*/
-    /*display: block;*/
-/*}*/
-
-/*.label {*/
-    /*!*-fx-font-size: 16px;*!*/
-    /*-fx-font-weight: bold;*/
-    /*-fx-text-fill: #333333;*/
-    /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/
-/*}*/
+.dialogFolder {
+    -fx-font-size: 20;
+    -fx-min-width: 500;
+}
 
 #welcome-text {
     -fx-font-size: 32px;
@@ -35,12 +29,31 @@ root {
 }
 
 Button {
-    /*-fx-font-size: 20px;*/
     -fx-text-fill: white;
     -fx-font-family: "Arial Narrow";
     -fx-font-weight: bold;
     -fx-background-color: linear-gradient(#61a2b1, #2A5058);
     -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+}
+
+ComboBox:disabled, ComboBox:disabled > * {
+    -fx-opacity: 0.9 ;
+}
+
+DatePicker:disabled, DatePicker:disabled > * {
+    -fx-opacity: 0.9 ;
+}
+
+TextField:disabled, TextField:disabled > * {
+    -fx-opacity: 0.9 ;
+}
+
+CheckBox:disabled, CheckBox:disabled > * {
+    -fx-opacity: 0.9 ;
+}
+
+RadioButton:disabled, RadioButton:disabled > * {
+    -fx-opacity: 0.9 ;
 }
 
 .login-button {

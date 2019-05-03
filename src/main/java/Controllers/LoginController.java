@@ -1,13 +1,16 @@
 package main.java.Controllers;
 
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Scene;
+import javafx.scene.input.KeyCode;
+import javafx.stage.Screen;
 import main.java.Main;
 import main.java.Models.LoginModel;
-import javafx.scene.text.Text;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class LoginController extends Main {
     private static final String USERNAME_EMPTY = "Please enter a valid username.";
@@ -20,42 +23,44 @@ public class LoginController extends Main {
     private PasswordField password;
     @FXML
     private CheckBox rememberMeCheckBox;
-    @FXML
-    private Text loginNotification;
 
     public void initialize() {
         configurationView();
-        if (prop.getProperty("USERNAME") != null && prop.getProperty("PASSWORD") != null) {
+        if (prop.getProperty("USERNAME") != null) {
             username.setText(prop.getProperty("USERNAME"));
+        }
+
+        if ( prop.getProperty("PASSWORD") != null) {
             password.setText(prop.getProperty("PASSWORD"));
         }
     }
     @FXML
-    protected void onLogin(ActionEvent event) throws Exception {
+    protected void onLogin() throws Exception {
         if (username.getText().isEmpty()) {
-            loginNotification.setText(USERNAME_EMPTY);
+            createNotificationDialog(USERNAME_EMPTY, null, null);
         } else if(password.getText().isEmpty()) {
-            loginNotification.setText(PASSWORD_EMPTY);
+            createNotificationDialog(PASSWORD_EMPTY, null, null);
         } else {
-            String usernameValue = username.getText();
-            String passwordValue = password.getText();
-            String urlForLogin = SERVER_URL + "/user/login?userid=" + usernameValue +"&passwd="+ passwordValue;
+            currentUsername = username.getText();
+            currentPassword = password.getText();
+            String urlForLogin = SERVER_URL + "/user/login?userid=" + currentUsername +"&passwd="+ currentPassword;
             String response = getResponseFromAPI(urlForLogin);
             LoginModel loginModel = gson.fromJson(response, LoginModel.class);
             linkId = loginModel.getPersonalInfo().getLink_id();
             if (loginModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+                stage.hide();
+                logger.info("Login success");
                 if (rememberMeCheckBox.isSelected()
-                        && (!prop.getProperty("USERNAME").equals(usernameValue) || !prop.getProperty("PASSWORD").equals(passwordValue))) {
+                        && !prop.getProperty("USERNAME").equals(currentUsername)) {
                     FileOutputStream config = new FileOutputStream("config.properties");
-                    prop.setProperty("USERNAME", usernameValue);
-                    prop.setProperty("PASSWORD", passwordValue);
+                    prop.setProperty("USERNAME", currentUsername);
                     prop.store(config,null);
                     config.close();
                 }
 
                 changePageCampaignList();
             } else {
-                loginNotification.setText(LOGIN_FAIL);
+                createNotificationDialog(LOGIN_FAIL, null, null);
             }
         }
     }
@@ -65,8 +70,26 @@ public class LoginController extends Main {
         setTextFieldLength(password, 216);
     }
 
-    private void changePageCampaignList() throws Exception {
+    public void setKeyBinding(Scene scene) {
+        scene.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                try {
+                    onLogin();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void changePageCampaignList() throws IOException {
         setSceneByView(CAMPAIGN_LIST_FXML);
-        window.setMaximized(true);
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        stage.setWidth(primScreenBounds.getWidth());
+        stage.setHeight(primScreenBounds.getHeight());
+        stage.setX(0);
+        stage.setY(0);
+        stage.setMaximized(true);
+        stage.show();
     }
 }

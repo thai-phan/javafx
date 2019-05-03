@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
 <BorderPane prefHeight="600.0" prefWidth="900.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.FolderSelectionController">
@@ -36,7 +37,7 @@
             </HBox>
          </top>
          <BorderPane.margin>
-            <Insets left="10.0" right="10.0" top="10.0" />
+            <Insets left="10.0" right="10.0" />
          </BorderPane.margin>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -65,30 +66,44 @@
       </HBox>
    </bottom>
    <top>
-      <HBox style="-fx-border-color: gray; -fx-border-radius: 5;">
-         <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="61.0" prefWidth="315.0">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="New Name" wrappingWidth="90.921875" />
-                  <TextField fx:id="newName" prefHeight="37.0" prefWidth="191.0" />
-               </children>
-               <padding>
-                  <Insets left="10.0" right="10.0" />
-               </padding>
-            </HBox>
-            <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="61.0" prefWidth="555.0">
-               <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Description:" wrappingWidth="90.921875" />
-                  <TextField fx:id="newDescription" prefHeight="37.0" prefWidth="450.0" />
-               </children>
-               <padding>
-                  <Insets left="10.0" right="10.0" />
-               </padding>
-            </HBox>
-         </children>
+      <VBox>
          <BorderPane.margin>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
          </BorderPane.margin>
-      </HBox>
+         <children>
+            <BorderPane>
+               <center>
+                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="405.0">
+                     <children>
+                        <TextField fx:id="newName" prefHeight="37.0" prefWidth="788.0" />
+                     </children>
+                  </HBox>
+               </center>
+               <left>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="New Name" textAlignment="RIGHT" wrappingWidth="140.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets right="10.0" />
+                     </BorderPane.margin>
+                  </Text>
+               </left>
+            </BorderPane>
+            <BorderPane>
+               <center>
+                  <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="442.0">
+                     <children>
+                        <TextField fx:id="newDescription" prefHeight="37.0" prefWidth="788.0" />
+                     </children>
+                  </HBox>
+               </center>
+               <left>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Description" textAlignment="RIGHT" wrappingWidth="140.0" BorderPane.alignment="CENTER">
+                     <BorderPane.margin>
+                        <Insets right="10.0" />
+                     </BorderPane.margin>
+                  </Text>
+               </left>
+            </BorderPane>
+         </children>
+      </VBox>
    </top>
 </BorderPane>

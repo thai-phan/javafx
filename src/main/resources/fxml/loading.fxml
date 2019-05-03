@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<BorderPane style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.LoadingController">
+    <center>
+      <HBox style="-fx-background-color: transparent;">
+         <children>
+             <ImageView>
+                 <Image url="/images/animatedBiColorCircle.gif"></Image>
+             </ImageView>
+         </children>
+      </HBox>
+   </center>
+</BorderPane>

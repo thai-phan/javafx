@@ -1,6 +1,9 @@
 package main.java.Controllers;
 
+import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
@@ -49,9 +52,13 @@ public class FolderSelectionController extends Main {
     }
 
     @FXML
-    public void onDuplicateCampaign() throws IOException {
+    public void onDuplicateCampaign() {
         String newCampName = newName.getText();
         String newCampDescription = newDescription.getText();
+        if (selectionFolderTree.getSelectionModel().isEmpty() || !selectionFolderTree.getSelectionModel().getSelectedItem().isLeaf()) {
+            createNotificationDialog("Select folder", null, null);
+            return;
+        }
         String newFolderId = selectionFolderTree.getSelectionModel().getSelectedItem().getValue().getId();
         String urlForDuplicateCampaign = null;
         try {
@@ -61,29 +68,50 @@ public class FolderSelectionController extends Main {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        String responseForDuplicateCampaign = getResponseFromAPI(urlForDuplicateCampaign);
-        Resultinfo resultinfo = gson.fromJson(responseForDuplicateCampaign, Resultinfo.class);
-        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            currentStage = (Stage) selectionFolderTree.getScene().getWindow();
-            ControlBindingObj selectedMasterFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getParent().getValue();
-            ControlBindingObj selectedSubFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getValue();
-            campaignListController.loadMasterFolderList(selectedMasterFolder, selectedSubFolder, newCampName);
-            currentStage.close();
-        } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
-        } else {
-            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString());
-        }
+        String finalUrlForDuplicateCampaign = urlForDuplicateCampaign;
+        Task<String> createTask = new Task<String>() {
+            @Override
+            public String call() throws IOException {
+                return getResponseFromAPI(finalUrlForDuplicateCampaign);
+
+            }
+        };
+        loadingStage.show();
+        createTask.setOnSucceeded(event -> {
+            Resultinfo resultinfo = gson.fromJson((String) event.getSource().getValue(), Resultinfo.class);
+            if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
+                TreeItem<ControlBindingObj> parentFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getParent();
+                TreeItem<ControlBindingObj> subFolder = selectionFolderTree.getSelectionModel().getSelectedItem();
+                campaignListController.selectedMasterFolder = parentFolder.getValue();
+                campaignListController.selectedSubFolder = subFolder.getValue().getName();
+                campaignListController.loadMasterFolderList();
+                currentStage = (Stage) selectionFolderTree.getScene().getWindow();
+                currentStage.close();
+            } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
+                try {
+                    logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, finalUrlForDuplicateCampaign);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), finalUrlForDuplicateCampaign);
+            }
+            loadingStage.hide();
+        });
+
+        new Thread(createTask).start();
+
     }
 
     @FXML
-    public void onCancelDuplicateCampaign() {
-        currentStage = (Stage) selectionFolderTree.getScene().getWindow();
+    public void onCancelDuplicateCampaign(ActionEvent actionEvent) {
+        currentStage = (Stage) ((Node) actionEvent.getTarget()).getScene().getWindow();
         currentStage.close();
     }
 
-    @Override
     public void initialize() {
+        setTextFieldLength(newName, 40);
+        setTextFieldLength(newDescription, 100);
     }
 
     public void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){

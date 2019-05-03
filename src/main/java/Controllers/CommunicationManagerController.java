@@ -4,15 +4,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.util.StringConverter;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.*;
-import main.java.Models.ModelObject.Cms;
-import main.java.Models.ModelObject.ControlBindingObj;
-import main.java.Models.ModelObject.Resultinfo;
-import main.java.Models.ModelObject.SchInfos;
+import main.java.Models.ModelObject.*;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -20,7 +21,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -97,10 +97,19 @@ public class CommunicationManagerController extends Main {
     private ToggleGroup frequencyDefault;
     @FXML
     private ToggleGroup frequencyMonthly;
+    @FXML
+    private Button saveCampNameBtn;
+    @FXML
+    private Button saveCampScheduleBtn;
+    @FXML
+    private Button saveCampFreqBtn;
+    @FXML
+    private Button saveCampDbBtn;
 
-
+    public boolean isView;
     private String campaignId;
     private Map<String, CheckBox> weekDayMap = new HashMap<>();
+    private LocalDate localDate;
 
     public void setCampaignId(String campaignId) {
         this.campaignId = campaignId;
@@ -110,143 +119,173 @@ public class CommunicationManagerController extends Main {
         return campaignId;
     }
 
-
-    @Override
     public void initialize() {
         if (getCampaignId() != null) {
+            localDate = (new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             configurationView();
             try {
                 loadDataFromAPI();
             } catch (IOException | ParseException e) {
                 e.printStackTrace();
             }
+            configurationViewAfterLoadData();
             addListener();
         }
     }
 
     @FXML
     protected void saveCampaignName(ActionEvent event) throws Exception {
-        String updatedName = campaignName.getText();
-        String updatedDescription = campaignDescription.getText();
-        String urlForUpdateCampInfo = SERVER_URL + "/cm/update/name?link_id=" + linkId + "&cm_id=" + getCampaignId()
-                + "&name=" + URLEncoder.encode(updatedName, "UTF-8") + "&desc=" + URLEncoder.encode(updatedDescription, "UTF-8");
-        String responseForUpdateCampName = getResponseFromAPI(urlForUpdateCampInfo);
-        Resultinfo resultinfo = gson.fromJson(responseForUpdateCampName, Resultinfo.class);
-        notificationForAction(resultinfo);
-
+        Alert alert = createAlert("Confirm to Save", null);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK){
+            String updatedName = campaignName.getText();
+            String updatedDescription = campaignDescription.getText();
+            String urlForUpdateCampInfo = SERVER_URL + "/cm/update/name?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                    + "&name=" + URLEncoder.encode(updatedName, "UTF-8") + "&desc=" + URLEncoder.encode(updatedDescription, "UTF-8");
+            String responseForUpdateCampName = getResponseFromAPI(urlForUpdateCampInfo);
+            Resultinfo resultinfo = gson.fromJson(responseForUpdateCampName, Resultinfo.class);
+            notificationForAction(resultinfo, urlForUpdateCampInfo);
+        }
     }
 
-    private void notificationForAction(Resultinfo resultinfo) throws IOException {
+    private void notificationForAction(Resultinfo resultinfo, String url) throws IOException {
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            createNotificationDialog(SUCCESS_TITLE, null);
+            createNotificationDialog(SUCCESS_HEADER, null, url);
         } else if(resultinfo.getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, url);
         } else {
-            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString());
+            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), url);
         }
     }
     @FXML
     private void onSaveCampSchedule() throws IOException {
-        String updatedActlComStart = actlComStart.getValue().toString();
-        String updatedActlComEnd = actlComEnd.getValue().toString();
-        String updatedPlanComStart = planComStart.getValue().toString();
-        String updatedPlanComEnd = planComEnd.getValue().toString();
-        String urlForUpdateCampSchedule = SERVER_URL + "/cm/update/date?link_id=" + linkId + "&cm_id=" + getCampaignId()
-                + "&act_comm_sdt=" + updatedActlComStart + "&act_comm_edt=" + updatedActlComEnd
-                + "&plan_comm_sdt=" + updatedPlanComStart + "&plan_comm_edt=" + updatedPlanComEnd;
-        String responseForUpdateCampSchedule = getResponseFromAPI(urlForUpdateCampSchedule);
-        Resultinfo resultinfo = gson.fromJson(responseForUpdateCampSchedule, Resultinfo.class);
-        notificationForAction(resultinfo);
+        Alert alert = createAlert("Confirm to Save", null);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            String updatedActlComStart = actlComStart.getValue().toString();
+            String updatedActlComEnd = actlComEnd.getValue().toString();
+            String updatedPlanComStart = planComStart.getValue().toString();
+            String updatedPlanComEnd = planComEnd.getValue().toString();
+            String urlForUpdateCampSchedule = SERVER_URL + "/cm/update/date?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                    + "&act_comm_sdt=" + updatedActlComStart + "&act_comm_edt=" + updatedActlComEnd
+                    + "&plan_comm_sdt=" + updatedPlanComStart + "&plan_comm_edt=" + updatedPlanComEnd;
+            String responseForUpdateCampSchedule = getResponseFromAPI(urlForUpdateCampSchedule);
+            Resultinfo resultinfo = gson.fromJson(responseForUpdateCampSchedule, Resultinfo.class);
+            notificationForAction(resultinfo, urlForUpdateCampSchedule);
+        }
     }
 
     @FXML
     private void onSaveCampFrequencyOpt() throws IOException {
-        String frequencyType = frequencyComboBox.getSelectionModel().getSelectedItem().getId();
-        String schStartDate = freqStart.getValue().toString().replace("-", "");
-        String schEndDate = endDateRadio.isSelected() ? freqEnd.getValue().toString().replace("-", "") : NO_END_DATE;
-        String optionNumber = "1";
-        String cronDd = "*";
-        String cronMm = "*";
-        String cronWk = "*";
-        boolean isUrlComplete = false;
+        Alert alert = createAlert("Confirm to Save", null);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            String frequencyType = frequencyComboBox.getSelectionModel().getSelectedItem().getId();
+            String schStartDate = freqStart.getValue().toString().replace("-", "");
+            String schEndDate = endDateRadio.isSelected() ? freqEnd.getValue().toString().replace("-", "") : NO_END_DATE;
+            String optionNumber = "1";
+            String cronDd = "*";
+            String cronMm = "*";
+            String cronWk = "*";
+            boolean isUrlComplete = false;
 
-        switch (frequencyType) {
-            case "1":
-                isUrlComplete = true;
-                break;
-            case "2":
-                ArrayList<String> dayList = new ArrayList<>();
-                weekDayMap.forEach((key, value)-> {
-                    if (value.isSelected()) {
-                        dayList.add(key );
-                    }
-                });
-                if (dayList.size() > 0) {
-                    cronWk = String.join(",", dayList);
+            switch (frequencyType) {
+                case "1":
                     isUrlComplete = true;
-                } else {
-                    createNotificationDialog("Select one day in week.", null);
-                }
-
-                break;
-            case "3":
-                if (monthlyDayRadio.isSelected()) {
-                    String monthlyOrdinalId = monthlyOrdinalCombo.getSelectionModel().getSelectedItem().getId();
-                    switch (monthlyOrdinalId) {
-                        case "6":
-                            cronDd = "L";
-                            break;
-                        case "5":
-                            cronWk = monthlyDayCombo.getSelectionModel().getSelectedItem().getId() + "L";
-                            break;
-                        default:
-                            cronWk = monthlyDayCombo.getSelectionModel().getSelectedItem().getId() + "#" + monthlyOrdinalId;
-                            break;
-                    }
-                    isUrlComplete = true;
-
-                } else if(monthlySpecificRadio.isSelected()) {
-                    optionNumber = "2";
-                    if (monthlyDateList.getText().matches(PATTERN_DAY_LIST)) {
-                        cronDd = monthlyDateList.getText();
+                    break;
+                case "2":
+                    ArrayList<String> dayList = new ArrayList<>();
+                    weekDayMap.forEach((key, value) -> {
+                        if (value.isSelected()) {
+                            dayList.add(key);
+                        }
+                    });
+                    if (dayList.size() > 0) {
+                        cronWk = String.join(",", dayList);
                         isUrlComplete = true;
-                    } else if(monthlyDateList.getText().isEmpty()){
-                        createNotificationDialog("Day list require.", null);
                     } else {
-                        createNotificationDialog("Day list wrong format.", null);
+                        createNotificationDialog("Select one day in week.", null, null);
                     }
-                }
-                break;
-            case "4":
-                String yearlyOrdinalId = yearlyOrdinalCombo.getSelectionModel().getSelectedItem().getId();
-                if (yearlyOrdinalId.equals("5")) {
-                    cronWk = yearlyDayCombo.getSelectionModel().getSelectedItem().getId() + "L";
-                } else {
-                    cronWk = yearlyDayCombo.getSelectionModel().getSelectedItem().getId() + "#" + yearlyOrdinalId;
-                }
-                cronMm = yearlyMonthCombo.getSelectionModel().getSelectedItem().getId();
-                break;
-        }
 
-        if (isUrlComplete) {
-            String urlForUpdateSchedule = SERVER_URL + "/sch/update/cm?link_id=" + linkId + "&cm_id=" + getCampaignId()
-                    + "&type_cd=" + frequencyType + "&start_dttm=" + schStartDate + "&end_dttm=" + schEndDate
-                    + "&opt_num=" + optionNumber + "&cron_Dd=" + cronDd + "&cron_Mm=" + cronMm + "&cron_Week=" + URLEncoder.encode(cronWk, "UTF-8");
-            String response = getResponseFromAPI(urlForUpdateSchedule);
-            Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
-            notificationForAction(resultinfo);
+                    break;
+                case "3":
+                    if (monthlyDayRadio.isSelected()) {
+                        String monthlyOrdinalId = monthlyOrdinalCombo.getSelectionModel().getSelectedItem().getId();
+                        switch (monthlyOrdinalId) {
+                            case "6":
+                                cronDd = "L";
+                                break;
+                            case "5":
+                                cronWk = monthlyDayCombo.getSelectionModel().getSelectedItem().getId() + "L";
+                                break;
+                            default:
+                                cronWk = monthlyDayCombo.getSelectionModel().getSelectedItem().getId() + "#" + monthlyOrdinalId;
+                                break;
+                        }
+                        isUrlComplete = true;
+
+                    } else if (monthlySpecificRadio.isSelected()) {
+                        optionNumber = "2";
+                        if (monthlyDateList.getText().matches(PATTERN_DAY_LIST)) {
+                            cronDd = monthlyDateList.getText();
+                            isUrlComplete = true;
+                        } else if (monthlyDateList.getText().isEmpty()) {
+                            createNotificationDialog("Day list require.", null, null);
+                        } else {
+                            createNotificationDialog("Day list wrong format.", null, null);
+                        }
+                    }
+                    break;
+                case "4":
+                    String yearlyOrdinalId = yearlyOrdinalCombo.getSelectionModel().getSelectedItem().getId();
+                    if (yearlyOrdinalId.equals("5")) {
+                        cronWk = yearlyDayCombo.getSelectionModel().getSelectedItem().getId() + "L";
+                    } else {
+                        cronWk = yearlyDayCombo.getSelectionModel().getSelectedItem().getId() + "#" + yearlyOrdinalId;
+                    }
+                    cronMm = yearlyMonthCombo.getSelectionModel().getSelectedItem().getId();
+                    isUrlComplete = true;
+                    break;
+            }
+
+            if (isUrlComplete) {
+                String urlForUpdateSchedule = SERVER_URL + "/sch/update/cm?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                        + "&type_cd=" + frequencyType + "&start_dttm=" + schStartDate + "&end_dttm=" + schEndDate
+                        + "&opt_num=" + optionNumber + "&cron_Dd=" + cronDd + "&cron_Mm=" + cronMm + "&cron_Week=" + URLEncoder.encode(cronWk, "UTF-8");
+                String response = getResponseFromAPI(urlForUpdateSchedule);
+                Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
+                notificationForAction(resultinfo, urlForUpdateSchedule);
+            }
         }
     }
 
     @FXML
     private void onSaveCampDatabase() throws IOException {
+        Alert alert = createAlert("Confirm to Save", null);
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            String currentDatabase = databaseListComboBox.getSelectionModel().getSelectedItem();
+            String currentView = viewListComboBox.getSelectionModel().getSelectedItem();
+            String url = SERVER_URL + "/dbs/update/cm?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                    + "&database_nm=" + currentDatabase + "&table_nm=" + currentView;
+            String response = getResponseFromAPI(url);
+            Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
+            notificationForAction(resultinfo, null);
+        }
+    }
+
+    @FXML
+    protected void onExplainDatabase() throws IOException {
         String currentDatabase = databaseListComboBox.getSelectionModel().getSelectedItem();
         String currentView = viewListComboBox.getSelectionModel().getSelectedItem();
-        String url = SERVER_URL + "/dbs/update/cm?link_id=" + linkId + "&cm_id=" + getCampaignId()
-                + "&database_nm=" + currentDatabase + "&table_nm=" + currentView;
-        String response = getResponseFromAPI(url);
-        Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
-        notificationForAction(resultinfo);
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(EXPLAIN_LIST));
+        Region root = loader.load();
+        Stage newStage = new Stage();
+        ExplainListController explainListController = loader.getController();
+        explainListController.initTableExplain(currentDatabase, currentView);
+        newStage.setScene(new Scene(root));
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.showAndWait();
     }
 
     @FXML
@@ -255,6 +294,12 @@ public class CommunicationManagerController extends Main {
     }
 
     private void configurationView() {
+        if (isView) {
+            saveCampNameBtn.setManaged(false);
+            saveCampScheduleBtn.setManaged(false);
+            saveCampFreqBtn.setManaged(false);
+            saveCampDbBtn.setManaged(false);
+        }
         weekDayMap.put("1", weeklySundayCheck);
         weekDayMap.put("2", weeklyMondayCheck);
         weekDayMap.put("3", weeklyTuesdayCheck);
@@ -328,6 +373,39 @@ public class CommunicationManagerController extends Main {
         monthlyDayCombo.setDisable(true);
         monthlyDateList.setDisable(true);
         freqEnd.setDisable(true);
+    }
+
+    private void configurationViewAfterLoadData() {
+        if (isView) {
+            campaignName.setDisable(true);
+            campaignDescription.setDisable(true);
+            actlComStart.setDisable(true);
+            actlComEnd.setDisable(true);
+            planComStart.setDisable(true);
+            planComEnd.setDisable(true);
+            frequencyComboBox.setDisable(true);
+            freqStart.setDisable(true);
+            freqEnd.setDisable(true);
+            endDateRadio.setDisable(true);
+            noEndDateRadio.setDisable(true);
+            weeklySundayCheck.setDisable(true);
+            weeklyMondayCheck.setDisable(true);
+            weeklyTuesdayCheck.setDisable(true);
+            weeklyWednesdayCheck.setDisable(true);
+            weeklyThursdayCheck.setDisable(true);
+            weeklyFridayCheck.setDisable(true);
+            weeklySaturdayCheck.setDisable(true);
+            monthlyDayRadio.setDisable(true);
+            monthlyOrdinalCombo.setDisable(true);
+            monthlyDayCombo.setDisable(true);
+            monthlySpecificRadio.setDisable(true);
+            monthlyDateList.setDisable(true);
+            yearlyOrdinalCombo.setDisable(true);
+            yearlyDayCombo.setDisable(true);
+            yearlyMonthCombo.setDisable(true);
+            databaseListComboBox.setDisable(true);
+            viewListComboBox.setDisable(true);
+        }
     }
 
     private void addListener() {
@@ -407,68 +485,58 @@ public class CommunicationManagerController extends Main {
         loadFrequencyList();
     }
 
-    private void loadCampaignInfo() {
+    private void loadCampaignInfo() throws IOException {
         String urlForCampaignInfo = SERVER_URL + "/cm/info?link_id=" + linkId+ "&cm_id=" + getCampaignId();
         String responseForCampaignInfo = getResponseFromAPI(urlForCampaignInfo);
         CampaignInfoModel campaignInfoObj = gson.fromJson(responseForCampaignInfo, CampaignInfoModel.class);
-        Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
-        campaignName.setText(campaign.getName());
-        campaignDescription.setText(campaign.getDescription());
-        if (campaign.getActual_Communication_Start_Dt() != null) {
-            actlComStart.setValue(LocalDate.parse(campaign.getActual_Communication_Start_Dt()));
-        }
-        if (campaign.getActual_Communication_End_Dt() != null) {
-            actlComEnd.setValue(LocalDate.parse(campaign.getActual_Communication_End_Dt()));
-        }
-        if (campaign.getPlanned_Communication_Start_Dt() != null) {
-            planComStart.setValue(LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()));
-        }
-        if (campaign.getPlanned_Communication_End_Dt() != null) {
-            planComEnd.setValue(LocalDate.parse(campaign.getPlanned_Communication_End_Dt()));
+        if (campaignInfoObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignInfoObj.getResultList().getCms().size() > 0) {
+            Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
+            campaignName.setText(campaign.getName());
+            campaignDescription.setText(campaign.getDescription());
+            if (campaign.getActual_Communication_Start_Dt() != null) {
+                actlComStart.setValue(LocalDate.parse(campaign.getActual_Communication_Start_Dt()));
+            } else {
+                actlComStart.setValue(localDate);
+            }
+
+            if (campaign.getActual_Communication_End_Dt() != null) {
+                actlComEnd.setValue(LocalDate.parse(campaign.getActual_Communication_End_Dt()));
+            } else {
+                actlComEnd.setValue(localDate);
+            }
+
+            if (campaign.getPlanned_Communication_Start_Dt() != null) {
+                planComStart.setValue(LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()));
+            } else {
+                planComStart.setValue(localDate);
+
+            }
+            if (campaign.getPlanned_Communication_End_Dt() != null) {
+                planComEnd.setValue(LocalDate.parse(campaign.getPlanned_Communication_End_Dt()));
+            } else {
+                planComEnd.setValue(localDate);
+            }
+
+        } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForCampaignInfo);
+        } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+            createNotificationDialog(ERROR_HEADER, campaignInfoObj.getResultinfo().getErrString(), urlForCampaignInfo);
         }
     }
-
-    private void changeDateTimeToKrTypeAndDisableEditor(DatePicker datePicker) {
-        String pattern = "yyyy/MM/dd";
-        datePicker.setPromptText(pattern.toLowerCase());
-        datePicker.setConverter(new StringConverter<LocalDate>() {
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-            @Override
-            public String toString(LocalDate date) {
-                if (date != null) {
-                    return dateTimeFormatter.format((date));
-                } else {
-                    return "";
-                }
-            }
-            @Override
-            public LocalDate fromString(String string) {
-                if (string != null && !string.isEmpty()) {
-                    return LocalDate.parse(string, dateTimeFormatter);
-                } else {
-                    return null;
-                }
-            }
-        });
-        datePicker.setEditable(false);
-    }
-
 
     private void loadFrequencyList() throws IOException, ParseException {
         String urlForFrequencyList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=2";
         String response = getResponseFromAPI(urlForFrequencyList);
         StatusListModel statusListObj = gson.fromJson(response,  StatusListModel.class);
-        if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+        if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && statusListObj.getCdList().getCds().size() > 0) {
             ObservableList<ControlBindingObj> statusList = FXCollections.observableArrayList();
             statusListObj.getCdList().getCds().forEach(index -> statusList.add(new ControlBindingObj(index.getName(), index.getCd())));
             frequencyComboBox.setItems(statusList);
             loadFrequencyDetail();
-
-
         } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
-        }  else {
-            createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString());
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForFrequencyList);
+        } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && statusListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+            createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForFrequencyList);
         }
     }
 
@@ -476,7 +544,7 @@ public class CommunicationManagerController extends Main {
         String urlForFrequencyDetail = SERVER_URL + "/sch/info/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
         String response = getResponseFromAPI(urlForFrequencyDetail);
         CampaignScheduleModel campaignScheduleObj = gson.fromJson(response, CampaignScheduleModel.class);
-        if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+        if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() > 0) {
             String selectedFrequencyType = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0).getSchedule_type_cd();
             ControlBindingObj selectedFrequency = frequencyComboBox.getItems()
                     .stream().filter(index -> index.getId().equals(selectedFrequencyType))
@@ -486,8 +554,10 @@ public class CommunicationManagerController extends Main {
             // Bind data to field list
             SchInfos scheduleDetail = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0);
             updateFrequencyBox(scheduleDetail.getSchedule_type_cd());
-            Date freqStartDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_start_dttm_ftm());
-            freqStart.setValue(freqStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            if (!scheduleDetail.getSchedule_start_dttm_ftm().isEmpty()) {
+                Date freqStartDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_start_dttm_ftm());
+                freqStart.setValue(freqStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            }
             if (!scheduleDetail.getSchedule_end_dttm_ftm().equals(NO_END_DATE)) {
                 endDateRadio.setSelected(true);
                 Date freqEndDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_end_dttm_ftm());
@@ -508,12 +578,16 @@ public class CommunicationManagerController extends Main {
                     bindDateForYearlyFrequency(scheduleDetail);
                     break;
             }
-
-
+        } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() == 0) {
+            frequencyComboBox.getSelectionModel().selectFirst();
+            freqStart.setValue(localDate);
+            endDateRadio.setSelected(true);
+            freqEnd.setDisable(false);
+            freqEnd.setValue(localDate);
         } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
-        } else {
-            createNotificationDialog(ERROR_HEADER, campaignScheduleObj.getResultinfo().getErrString());
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForFrequencyDetail);
+        } else if (campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+            createNotificationDialog(ERROR_HEADER, campaignScheduleObj.getResultinfo().getErrString(), urlForFrequencyDetail);
         }
     }
 
@@ -601,7 +675,7 @@ public class CommunicationManagerController extends Main {
         String urlForLoadDatabaseList = SERVER_URL + "/dbs/list/dbname?link_id=" + linkId;
         String responseForDatabaseList = getResponseFromAPI(urlForLoadDatabaseList);
         DatabaseListModel databaseListObj = gson.fromJson(responseForDatabaseList, DatabaseListModel.class);
-        if (databaseListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+        if (databaseListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && databaseListObj.getResultListTable().getDbNames().size() > 0) {
             ObservableList<String> databaseList = FXCollections.observableArrayList();
             databaseListObj.getResultListTable().getDbNames().forEach(index -> databaseList.add(index.getDbname()));
             databaseListComboBox.setItems(databaseList);
@@ -613,9 +687,9 @@ public class CommunicationManagerController extends Main {
             databaseListComboBox.getSelectionModel().select(selectedDbName);
             loadViewListByDatabaseName(selectedDbName, selectedTableName);
         } else if (databaseListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
-        } else {
-            createNotificationDialog(ERROR_HEADER, databaseListObj.getResultinfo().getErrString());
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForLoadDatabaseList);
+        } else if (databaseListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && databaseListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+            createNotificationDialog(ERROR_HEADER, databaseListObj.getResultinfo().getErrString(), urlForLoadDatabaseList);
         }
     }
 
@@ -623,7 +697,7 @@ public class CommunicationManagerController extends Main {
         String urlForViewList = SERVER_URL + "/dbs/list/view?link_id=" + linkId + "&dbname=" + databaseName;
         String responseForViewList = getResponseFromAPI(urlForViewList);
         ViewListModel viewListObj = gson.fromJson(responseForViewList, ViewListModel.class);
-        if (viewListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+        if (viewListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && viewListObj.getResultList().getSetViews().size() > 0) {
             ObservableList<String> viewList = FXCollections.observableArrayList();
             viewListObj.getResultList().getSetViews().forEach(index -> viewList.add(index.getTableName()));
             viewListComboBox.setItems(viewList);
@@ -633,9 +707,9 @@ public class CommunicationManagerController extends Main {
                 viewListComboBox.getSelectionModel().select(tableName);
             }
         } else if(viewListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT);
-        } else {
-            createNotificationDialog(ERROR_HEADER, viewListObj.getResultinfo().getErrString());
+            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForViewList);
+        } else if (viewListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && viewListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+            createNotificationDialog(ERROR_HEADER, viewListObj.getResultinfo().getErrString(), urlForViewList);
         }
     }
 }
