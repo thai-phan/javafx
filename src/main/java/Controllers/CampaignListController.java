@@ -1,6 +1,9 @@
 package main.java.Controllers;
 
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableStringValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -10,6 +13,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.Region;
 import javafx.scene.text.Text;
@@ -95,7 +99,7 @@ public class CampaignListController extends Main
 
     private static boolean isSearch;
     private Pattern folderNamePattern;
-
+    private SimpleStringProperty status = new SimpleStringProperty();
     @Override
     public void initialize() {
         folderNamePattern = Pattern.compile(PATTERN_FOLDER_NAME);
@@ -167,11 +171,23 @@ public class CampaignListController extends Main
 
     @FXML
     private void onLogout() throws IOException {
-        Alert alert = createAlert("Confirm to logout", null);
+        Alert alert = createAlert("Confirm to logout");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             logout();
         }
+    }
+
+    @FXML
+    private void onChangePassword() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(PASSWORD));
+        Region root = loader.load();
+        Stage newStage = new Stage();
+        newStage.setScene(new Scene(root));
+        newStage.getIcons().add(new Image("/images/change-password.png"));
+        newStage.setTitle("Change password");
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.showAndWait();
     }
 
     @FXML
@@ -185,9 +201,9 @@ public class CampaignListController extends Main
         dialog.setHeaderText("Enter new folder name");
         Optional<String> result = dialog.showAndWait();
 
-        Matcher matcher = folderNamePattern.matcher(result.get());
 
         if (result.isPresent()) {
+            Matcher matcher = folderNamePattern.matcher(result.get());
             if (matcher.find()) {
                 addFolder(matcher.group(1));
             } else {
@@ -208,9 +224,9 @@ public class CampaignListController extends Main
         dialog.setHeaderText("Enter new folder name");
         Optional<String> result = dialog.showAndWait();
 
-        Matcher matcher = folderNamePattern.matcher(result.get());
-        String folderId = folderTree.getSelectionModel().getSelectedItems().get(0).getValue().getId();
         if (result.isPresent()) {
+            Matcher matcher = folderNamePattern.matcher(result.get());
+            String folderId = folderTree.getSelectionModel().getSelectedItems().get(0).getValue().getId();
             if (matcher.find()) {
                 renameFolder(matcher.group(1), folderId);
             } else {
@@ -230,6 +246,8 @@ public class CampaignListController extends Main
         folderSelectionController.setOldCampId(selectedCampaign.getEntity_Id());
         folderSelectionController.setCampaignListController(this);
         folderSelectionController.getSelectedCampNameAndDescription(selectedCampaign.getName(), selectedCampaign.getDescription());
+        newStage.getIcons().add(new Image("/images/copy.png"));
+        newStage.setTitle("Copy campaign");
         newStage.setScene(new Scene(root));
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
@@ -245,7 +263,7 @@ public class CampaignListController extends Main
 
     @FXML
     public void onActiveCamp() throws IOException {
-        Alert alert = createAlert("Confirm to Active Campaign", null);
+        Alert alert = createAlert("Confirm to Active Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             changeCampaignStatus(STATUS_ACTIVE);
@@ -254,7 +272,7 @@ public class CampaignListController extends Main
 
     @FXML
     public void onDeactiveCamp() throws IOException {
-        Alert alert = createAlert("Confirm to Deactivate Campaign", null);
+        Alert alert = createAlert("Confirm to Deactivate Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             changeCampaignStatus(STATUS_INACTIVE);
@@ -263,7 +281,7 @@ public class CampaignListController extends Main
 
     @FXML
     public void onSubmitCamp() throws IOException {
-        Alert alert = createAlert("Confirm to Submit Campaign", null);
+        Alert alert = createAlert("Confirm to Submit Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             changeCampaignStatus(STATUS_INACTIVE);
@@ -272,7 +290,7 @@ public class CampaignListController extends Main
 
     @FXML
     public void onRejectCamp() throws IOException {
-        Alert alert = createAlert("Confirm to Reject Campaign", null);
+        Alert alert = createAlert("Confirm to Reject Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             changeCampaignStatus(STATUS_DRAFT);
@@ -316,6 +334,11 @@ public class CampaignListController extends Main
     }
 
     private void disableListCommandButton() {
+//        campaignTableView.
+//
+//        deactiveCampButton.disableProperty().bind(status.isNotEqualTo(STATUS_ACTIVE));
+//        duplicateBtn.disableProperty().bind(Bindings.size(selectionFolderTree.getSelectionModel().getSelectedItems()).isEqualTo(0));
+
         deactiveCampButton.setDisable(true);
         activeCampButton.setDisable(true);
         submitCampButton.setDisable(true);
@@ -324,6 +347,16 @@ public class CampaignListController extends Main
         copyCampButton.setDisable(true);
         viewCampButton.setDisable(true);
         launchScheduleButton.setDisable(true);
+
+
+//        deactiveCampButton.setDisable(true);
+//        activeCampButton.setDisable(true);
+//        submitCampButton.setDisable(true);
+//        rejectCampButton.setDisable(true);
+//        editCampButton.setDisable(true);
+//        copyCampButton.setDisable(true);
+//        viewCampButton.setDisable(true);
+//        launchScheduleButton.setDisable(true);
     }
 
     private void addListener() {
@@ -342,7 +375,6 @@ public class CampaignListController extends Main
                 if(event.getClickCount() == 2) {
                     isSearch = false;
                     selectedSubFolder = folderTree.getSelectionModel().getSelectedItem().getValue().getName();
-                    lg("new "+ selectedSubFolder);
                     selectedCampaign = null;
                     loadCampaignTable();
                 }
@@ -352,6 +384,7 @@ public class CampaignListController extends Main
                 (observable, oldValue, newValue) -> {
                     if (newValue != null) {
                         selectedCampaign = newValue;
+                        status.setValue(newValue.getStatus_Cd());
                         updateStatusCommandButton(newValue.getStatus_Cd());
                     }
                 }
@@ -442,7 +475,7 @@ public class CampaignListController extends Main
                 // loadSubFolderListOnTree(false);
             } else if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
                 try {
-                    logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForMasterFolder);
+                    logoutByExpireSession(urlForMasterFolder);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -469,7 +502,6 @@ public class CampaignListController extends Main
             TreeItem<ControlBindingObj> item = (TreeItem<ControlBindingObj>)response.getSource().getValue();
             folderTree.setRoot(item);
             folderTree.setShowRoot(false);
-            lg("use " + selectedSubFolder);
             if (selectedSubFolder != null) {
                 TreeItem<ControlBindingObj> selectedFolderItem = item.getChildren().stream()
                         .filter(index -> index.getValue().getName().equals(selectedSubFolder))
@@ -554,7 +586,7 @@ public class CampaignListController extends Main
                 createNotificationDialog("Campaign list empty", null, null);
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
                 try {
-                    logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, finalUrlForCampaignList);
+                    logoutByExpireSession(finalUrlForCampaignList);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -602,7 +634,7 @@ public class CampaignListController extends Main
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
             loadSubFolderListOnTree(true);
         } else if(resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, url);
+            logoutByExpireSession(url);
         } else {
             createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), url);
         }
@@ -622,7 +654,7 @@ public class CampaignListController extends Main
                 statusListComboBox.getSelectionModel().selectFirst();
             }
         } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForStatusList);
+            logoutByExpireSession(urlForStatusList);
         } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS){
             createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForStatusList);
         }
@@ -636,7 +668,7 @@ public class CampaignListController extends Main
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
             loadCampaignTable();
         } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForChangeStatus);
+            logoutByExpireSession(urlForChangeStatus);
         } else {
             createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForChangeStatus);
         }

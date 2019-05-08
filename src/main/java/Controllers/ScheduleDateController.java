@@ -39,7 +39,7 @@ public class ScheduleDateController extends Main {
             currentStage.close();
             campaignListController.loadCampaignTable();
         } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForRunSchedule);
+            logoutByExpireSession(urlForRunSchedule);
         } else {
             createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForRunSchedule);
             currentStage.close();

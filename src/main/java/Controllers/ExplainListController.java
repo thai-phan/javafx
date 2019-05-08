@@ -49,7 +49,7 @@ public class ExplainListController extends Main {
             explainViewObj.getResultList().getExplainTxts().forEach(index -> explainListObs.add(new ExplainTxts(index.getString(), index.getExplainTxt())));
             explainTable.setItems(explainListObs);
         } else if(explainViewObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForExplainList);
+            logoutByExpireSession(urlForExplainList);
         } else if(explainViewObj.getResultinfo().getErrCd() != API_CODE_SUCCESS) {
             createNotificationDialog(ERROR_HEADER, explainViewObj.getResultinfo().getErrString(), urlForExplainList);
         }

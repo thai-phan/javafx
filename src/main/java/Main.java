@@ -2,7 +2,6 @@ package main.java;
 
 import com.google.gson.Gson;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -15,12 +14,14 @@ import javafx.util.StringConverter;
 import main.java.Controllers.LoginController;
 import main.java.Models.MasterFolderModel;
 import main.java.Models.ModelObject.ControlBindingObj;
+import main.java.Models.ModelObject.Resultinfo;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import javax.net.ssl.*;
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -40,6 +41,8 @@ public class Main extends Application {
     public static final String EXPLAIN_LIST = "/fxml/explainList.fxml";
     public static final String SCHEDULE_DATE = "/fxml/scheduleDate.fxml";
     public static final String LOADING = "/fxml/loading.fxml";
+    public static final String PASSWORD = "/fxml/password.fxml";
+
 
     public static final int API_CODE_SUCCESS = 0;
     public static final int API_CODE_LOGOUT = 9999;
@@ -47,6 +50,7 @@ public class Main extends Application {
     public static final String SESSION_EXPIRE_CONTENT = "Please re-login";
     public static final String ERROR_HEADER = "Error";
     public static final String SUCCESS_HEADER = "Action Success";
+    public static final String ALERT_HEADER = "Alert";
 
     public final static Logger logger = Logger.getLogger(Main.class);
 
@@ -82,7 +86,7 @@ public class Main extends Application {
     public void initialize() {
     }
 
-    public void createLoadingWindow() throws IOException {
+    private void createLoadingWindow() throws IOException {
         Parent loadingRoot = FXMLLoader.load(getClass().getResource(LOADING));
         loadingStage = new Stage();
         loadingStage.setScene(new Scene(loadingRoot));
@@ -90,7 +94,7 @@ public class Main extends Application {
         loadingStage.initModality(Modality.APPLICATION_MODAL);
     }
 
-    public static void setTextFieldLength(final TextField tf, final int maxLength) {
+    protected static void setTextFieldLength(final TextField tf, final int maxLength) {
         tf.textProperty().addListener((ov, oldValue, newValue) -> {
             if (tf.getText().length() > maxLength) {
                 String s = tf.getText().substring(0, maxLength);
@@ -100,6 +104,16 @@ public class Main extends Application {
     }
     @Override
     public void stop() {
+    }
+
+    protected void notificationForAction(Resultinfo resultinfo, String url) throws IOException {
+        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
+            createNotificationDialog(SUCCESS_HEADER, null, url);
+        } else if(resultinfo.getErrCd() == API_CODE_LOGOUT){
+            logoutByExpireSession(url);
+        } else {
+            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), url);
+        }
     }
 
     protected void setSceneByView(String resourceName) throws IOException {
@@ -113,12 +127,12 @@ public class Main extends Application {
 
     public static Gson gson = new Gson();
 
-    public void logoutByExpireSession(String header, String content, String url) throws IOException {
-        createNotificationDialog(header, content, url);
+    protected void logoutByExpireSession(String url) throws IOException {
+        createNotificationDialog(Main.SESSION_EXPIRE_HEADER, Main.SESSION_EXPIRE_CONTENT, url);
         logout();
     }
 
-    public void logout() throws IOException {
+    protected void logout() throws IOException {
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setWidth(WIDTH);
         stage.setHeight(HEIGHT);
@@ -156,8 +170,6 @@ public class Main extends Application {
         if(header.equals(ERROR_HEADER)){
             String api = url != null ? url : "";
             logger.error("Error: " + content + "API: " + api);
-        } else if(header.equals(SUCCESS_HEADER)) {
-//            logger.info("Success: " );
         }
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -226,12 +238,12 @@ public class Main extends Application {
                 URL obj = new URL(url);
                 HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
                 con.setRequestMethod("GET");
-                in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
+                in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             } else {
                 URL obj = new URL(url);
                 HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                 con.setRequestMethod("GET");
-                in = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
+                in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             }
 
             String inputLine;
@@ -242,9 +254,10 @@ public class Main extends Application {
             return response.toString();
         } catch (IOException e) {
             e.printStackTrace();
-            createNotificationDialog(e.getMessage(), null, null);
+            createNotificationDialog(ERROR_HEADER, e.getMessage(), null);
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
+            createNotificationDialog(ERROR_HEADER, e.getMessage(), null);
         }
         return null;
     }
@@ -256,16 +269,13 @@ public class Main extends Application {
             stage = primaryStage;
             stage.getIcons().add(new Image(ICON));
             stage.setTitle(TITLE);
-            stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-                @Override
-                public void handle(WindowEvent event) {
-                    Alert alert = createAlert("Confirm to close window", null);
-                    Optional<ButtonType> result = alert.showAndWait();
-                    if (result.get() == ButtonType.OK){
-                        System.exit(0);
-                    } else {
-                        event.consume();
-                    }
+            stage.setOnCloseRequest(event -> {
+                Alert alert = createAlert("Confirm to close window");
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.get() == ButtonType.OK){
+                    System.exit(0);
+                } else {
+                    event.consume();
                 }
             });
             createLoginWindow();
@@ -274,11 +284,11 @@ public class Main extends Application {
         }
     }
 
-    public Alert createAlert(String header, String content) {
+    protected Alert createAlert(String header) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Confirmation Dialog");
         alert.setHeaderText(header);
-        alert.setContentText(content);
+        alert.setContentText(null);
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
                 getClass().getResource("/css/main.css").toExternalForm());
@@ -286,7 +296,7 @@ public class Main extends Application {
         return alert;
     }
 
-    public void createLoginWindow() throws IOException {
+    private void createLoginWindow() throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOGIN_FXML));
         Region root = loader.load();
         LoginController loginController = loader.getController();

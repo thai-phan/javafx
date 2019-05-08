@@ -7,3 +7,5 @@ config.properties
 log4j-application.log
 .project
 .settings/org.eclipse.jdt.core.prefs
+/.svn
+/SCM_GM

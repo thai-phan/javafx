@@ -13,7 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="1080.0" prefWidth="1900.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CampaignListController">
+<BorderPane prefHeight="1080.0" prefWidth="1900.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CampaignListController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -71,7 +71,7 @@
                                  <children>
                                      <Button fx:id="launchScheduleButton" onAction="#onLaunchSchedule" prefHeight="36.0" prefWidth="90.0" text="Schedule">
                                        <HBox.margin>
-                                          <Insets left="5.0" right="5.0" />
+                                          <Insets left="5.0" />
                                        </HBox.margin></Button>
                                  </children>
                               </HBox>
@@ -221,9 +221,14 @@
          <top>
                    <HBox alignment="CENTER_RIGHT" prefHeight="54.0" prefWidth="1180.0" BorderPane.alignment="CENTER">
                <children>
+                  <Button fx:id="changePwdBtn" layoutX="1776.0" layoutY="19.0" onAction="#onChangePassword" prefHeight="36.0" prefWidth="150.0" text="Change Password">
+                     <HBox.margin>
+                        <Insets left="5.0" right="5.0" />
+                     </HBox.margin>
+                  </Button>
                      <Button fx:id="logoutButton" onAction="#onLogout" prefHeight="36.0" prefWidth="90.0" text="Logout">
                      <HBox.margin>
-                        <Insets />
+                        <Insets left="5.0" />
                      </HBox.margin>
                   </Button>
                </children>
@@ -240,5 +245,4 @@
    <bottom>
       <BorderPane prefHeight="26.0" prefWidth="1398.0" BorderPane.alignment="CENTER" />
    </bottom>
-
 </BorderPane>

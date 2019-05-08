@@ -73,6 +73,6 @@ RadioButton:disabled, RadioButton:disabled > * {
     /*-fx-background-insets: 0, 1;*/
 
     /* There is some oddness if padding is in em values rather than pixels,
-       in particular, the left border of the control doesn't show. */
+       in particular, the left border of the control doesn'test show. */
     /*-fx-padding: 1; !* 0.083333em; *!*/
 }

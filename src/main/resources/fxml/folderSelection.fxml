@@ -47,7 +47,7 @@
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefHeight="58.0" prefWidth="600.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" onAction="#onDuplicateCampaign" prefHeight="36.0" prefWidth="90.0" text="OK">
+            <Button fx:id="duplicateBtn" mnemonicParsing="false" onAction="#onDuplicateCampaign" prefHeight="36.0" prefWidth="90.0" text="OK">
                <HBox.margin>
                   <Insets left="5.0" right="5.0" />
                </HBox.margin>

@@ -135,7 +135,7 @@ public class CommunicationManagerController extends Main {
 
     @FXML
     protected void saveCampaignName(ActionEvent event) throws Exception {
-        Alert alert = createAlert("Confirm to Save", null);
+        Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             String updatedName = campaignName.getText();
@@ -148,18 +148,9 @@ public class CommunicationManagerController extends Main {
         }
     }
 
-    private void notificationForAction(Resultinfo resultinfo, String url) throws IOException {
-        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            createNotificationDialog(SUCCESS_HEADER, null, url);
-        } else if(resultinfo.getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, url);
-        } else {
-            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), url);
-        }
-    }
     @FXML
     private void onSaveCampSchedule() throws IOException {
-        Alert alert = createAlert("Confirm to Save", null);
+        Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             String updatedActlComStart = actlComStart.getValue().toString();
@@ -177,7 +168,7 @@ public class CommunicationManagerController extends Main {
 
     @FXML
     private void onSaveCampFrequencyOpt() throws IOException {
-        Alert alert = createAlert("Confirm to Save", null);
+        Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             String frequencyType = frequencyComboBox.getSelectionModel().getSelectedItem().getId();
@@ -261,7 +252,7 @@ public class CommunicationManagerController extends Main {
 
     @FXML
     private void onSaveCampDatabase() throws IOException {
-        Alert alert = createAlert("Confirm to Save", null);
+        Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
             String currentDatabase = databaseListComboBox.getSelectionModel().getSelectedItem();
@@ -518,7 +509,7 @@ public class CommunicationManagerController extends Main {
             }
 
         } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForCampaignInfo);
+            logoutByExpireSession(urlForCampaignInfo);
         } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
             createNotificationDialog(ERROR_HEADER, campaignInfoObj.getResultinfo().getErrString(), urlForCampaignInfo);
         }
@@ -534,7 +525,7 @@ public class CommunicationManagerController extends Main {
             frequencyComboBox.setItems(statusList);
             loadFrequencyDetail();
         } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForFrequencyList);
+            logoutByExpireSession(urlForFrequencyList);
         } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && statusListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
             createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForFrequencyList);
         }
@@ -585,7 +576,7 @@ public class CommunicationManagerController extends Main {
             freqEnd.setDisable(false);
             freqEnd.setValue(localDate);
         } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForFrequencyDetail);
+            logoutByExpireSession(urlForFrequencyDetail);
         } else if (campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
             createNotificationDialog(ERROR_HEADER, campaignScheduleObj.getResultinfo().getErrString(), urlForFrequencyDetail);
         }
@@ -687,7 +678,7 @@ public class CommunicationManagerController extends Main {
             databaseListComboBox.getSelectionModel().select(selectedDbName);
             loadViewListByDatabaseName(selectedDbName, selectedTableName);
         } else if (databaseListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForLoadDatabaseList);
+            logoutByExpireSession(urlForLoadDatabaseList);
         } else if (databaseListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && databaseListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
             createNotificationDialog(ERROR_HEADER, databaseListObj.getResultinfo().getErrString(), urlForLoadDatabaseList);
         }
@@ -707,7 +698,7 @@ public class CommunicationManagerController extends Main {
                 viewListComboBox.getSelectionModel().select(tableName);
             }
         } else if(viewListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, urlForViewList);
+            logoutByExpireSession(urlForViewList);
         } else if (viewListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && viewListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
             createNotificationDialog(ERROR_HEADER, viewListObj.getResultinfo().getErrString(), urlForViewList);
         }

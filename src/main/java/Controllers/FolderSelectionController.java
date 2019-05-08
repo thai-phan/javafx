@@ -1,13 +1,11 @@
 package main.java.Controllers;
 
+import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.ModelObject.ControlBindingObj;
@@ -25,7 +23,8 @@ public class FolderSelectionController extends Main {
     private TextField newDescription;
     @FXML
     private TreeView<ControlBindingObj> selectionFolderTree;
-
+    @FXML
+    private Button duplicateBtn;
     private CampaignListController campaignListController;
     private Stage currentStage;
     private String oldCampId;
@@ -56,7 +55,7 @@ public class FolderSelectionController extends Main {
         String newCampName = newName.getText();
         String newCampDescription = newDescription.getText();
         if (selectionFolderTree.getSelectionModel().isEmpty() || !selectionFolderTree.getSelectionModel().getSelectedItem().isLeaf()) {
-            createNotificationDialog("Select folder", null, null);
+            createNotificationDialog("Please select sub folder", null, null);
             return;
         }
         String newFolderId = selectionFolderTree.getSelectionModel().getSelectedItem().getValue().getId();
@@ -89,7 +88,7 @@ public class FolderSelectionController extends Main {
                 currentStage.close();
             } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
                 try {
-                    logoutByExpireSession(SESSION_EXPIRE_HEADER, SESSION_EXPIRE_CONTENT, finalUrlForDuplicateCampaign);
+                    logoutByExpireSession(finalUrlForDuplicateCampaign);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -112,6 +111,7 @@ public class FolderSelectionController extends Main {
     public void initialize() {
         setTextFieldLength(newName, 40);
         setTextFieldLength(newDescription, 100);
+        duplicateBtn.disableProperty().bind(Bindings.size(selectionFolderTree.getSelectionModel().getSelectedItems()).isEqualTo(0));
     }
 
     public void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){

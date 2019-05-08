@@ -11,6 +11,10 @@ import javafx.scene.control.*;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 public class LoginController extends Main {
     private static final String USERNAME_EMPTY = "Please enter a valid username.";
@@ -43,7 +47,23 @@ public class LoginController extends Main {
         } else {
             currentUsername = username.getText();
             currentPassword = password.getText();
-            String urlForLogin = SERVER_URL + "/user/login?userid=" + currentUsername +"&passwd="+ currentPassword;
+            InetAddress ip = null;
+            String macAddress = null;
+            try {
+                ip = InetAddress.getLocalHost();
+                NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+                byte[] mac = network.getHardwareAddress();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < mac.length; i++) {
+                    sb.append(String.format("%02X%s", mac[i], (i < mac.length - 1) ? "-" : ""));
+                }
+                macAddress = sb.toString();
+            } catch (UnknownHostException | SocketException e) {
+                e.printStackTrace();
+
+            }
+            assert ip != null;
+            String urlForLogin = SERVER_URL + "/user/login?userid=" + currentUsername +"&passwd="+ currentPassword + "&ipaddr=" + ip.getHostAddress() + "&macaddr=" + macAddress;
             String response = getResponseFromAPI(urlForLogin);
             LoginModel loginModel = gson.fromJson(response, LoginModel.class);
             linkId = loginModel.getPersonalInfo().getLink_id();
