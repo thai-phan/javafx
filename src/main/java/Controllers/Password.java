@@ -1,8 +1,5 @@
 package main.java.Controllers;
 
-import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -50,7 +47,7 @@ public class Password extends Main {
     }
 
     @FXML
-    private void onSaveNewPassword() throws IOException {
+    private void onSaveNewPassword() {
         boolean isValidated = validateField();
         if (isValidated) {
             String oldPwdValue = currentPwd.getText();
@@ -67,18 +64,22 @@ public class Password extends Main {
             createTask.setOnSucceeded(event -> {
                 String response = (String) event.getSource().getValue();
                 Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
-                if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-                    createNotificationDialog(SUCCESS_HEADER, null, urlForSaveNewPassword);
-                    Stage currentWindow = (Stage) currentPwd.getScene().getWindow();
-                    currentWindow.close();
-                } else if(resultinfo.getErrCd() == API_CODE_LOGOUT){
-                    try {
-                        logoutByExpireSession(urlForSaveNewPassword);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForSaveNewPassword);
+                switch (resultinfo.getErrCd()) {
+                    case API_CODE_SUCCESS:
+                        createNotificationDialog(SUCCESS_HEADER, null, urlForSaveNewPassword);
+                        Stage currentWindow = (Stage) currentPwd.getScene().getWindow();
+                        currentWindow.close();
+                        break;
+                    case API_CODE_LOGOUT:
+                        try {
+                            logoutByExpireSession(urlForSaveNewPassword);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        break;
+                    default:
+                        createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForSaveNewPassword);
+                        break;
                 }
                 loadingStage.hide();
             });

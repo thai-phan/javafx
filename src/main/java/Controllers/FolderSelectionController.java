@@ -33,19 +33,15 @@ public class FolderSelectionController extends Main {
         this.oldCampId = oldCampId;
     }
 
-    public String getOldCampId() {
+    private String getOldCampId() {
         return oldCampId;
     }
 
-    public void setCampaignListController(CampaignListController campaignListController) {
+    void setCampaignListController(CampaignListController campaignListController) {
         this.campaignListController = campaignListController;
     }
 
-    public CampaignListController getCampaignListController() {
-        return campaignListController;
-    }
-
-    public void getSelectedCampNameAndDescription(String name, String description) {
+    void getSelectedCampNameAndDescription(String name, String description) {
         newName.setText("Copy Of " + name);
         newDescription.setText(description);
     }
@@ -78,22 +74,27 @@ public class FolderSelectionController extends Main {
         loadingStage.show();
         createTask.setOnSucceeded(event -> {
             Resultinfo resultinfo = gson.fromJson((String) event.getSource().getValue(), Resultinfo.class);
-            if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-                TreeItem<ControlBindingObj> parentFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getParent();
-                TreeItem<ControlBindingObj> subFolder = selectionFolderTree.getSelectionModel().getSelectedItem();
-                campaignListController.selectedMasterFolder = parentFolder.getValue();
-                campaignListController.selectedSubFolder = subFolder.getValue().getName();
-                campaignListController.loadMasterFolderList();
-                currentStage = (Stage) selectionFolderTree.getScene().getWindow();
-                currentStage.close();
-            } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(finalUrlForDuplicateCampaign);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), finalUrlForDuplicateCampaign);
+            switch (resultinfo.getErrCd()) {
+                case API_CODE_SUCCESS:
+                    createNotificationDialog(SUCCESS_HEADER, null, null);
+                    TreeItem<ControlBindingObj> parentFolder = selectionFolderTree.getSelectionModel().getSelectedItem().getParent();
+                    TreeItem<ControlBindingObj> subFolder = selectionFolderTree.getSelectionModel().getSelectedItem();
+                    CampaignListController.selectedMasterFolder = parentFolder.getValue();
+                    CampaignListController.selectedSubFolder = subFolder.getValue().getName();
+                    campaignListController.loadMasterFolderList();
+                    currentStage = (Stage) selectionFolderTree.getScene().getWindow();
+                    currentStage.close();
+                    break;
+                case API_CODE_LOGOUT:
+                    try {
+                        logoutByExpireSession(finalUrlForDuplicateCampaign);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                default:
+                    createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), finalUrlForDuplicateCampaign);
+                    break;
             }
             loadingStage.hide();
         });
@@ -114,7 +115,7 @@ public class FolderSelectionController extends Main {
         duplicateBtn.disableProperty().bind(Bindings.size(selectionFolderTree.getSelectionModel().getSelectedItems()).isEqualTo(0));
     }
 
-    public void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){
+    void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){
         TreeItem<ControlBindingObj> folderTreeRoot = new TreeItem<>();
         masterFolder.getItems()
                 .forEach(index -> folderTreeRoot.getChildren().add(loadMasterFolderTreeItem(index)));

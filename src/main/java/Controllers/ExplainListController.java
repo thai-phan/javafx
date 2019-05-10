@@ -34,7 +34,7 @@ public class ExplainListController extends Main {
         explainClm.setCellValueFactory(new PropertyValueFactory<>("explainTxt"));
     }
 
-    public void initTableExplain(String dbName, String viewName) throws IOException {
+    void initTableExplain(String dbName, String viewName) throws IOException {
         this.currentDatabase = dbName;
         this.currentView = viewName;
         loadDataForExplainTable();

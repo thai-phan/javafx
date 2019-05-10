@@ -2,6 +2,7 @@ package main.java;
 
 import com.google.gson.Gson;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -24,6 +25,7 @@ import java.net.*;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -32,39 +34,40 @@ import java.util.Properties;
 
 
 public class Main extends Application {
-    public static final int WIDTH = 500;
-    public static final int HEIGHT = 500;
-    public static final String CAMPAIGN_LIST_FXML = "/fxml/campaignList.fxml";
+    private static final int WIDTH = 500;
+    private static final int HEIGHT = 500;
+    protected static final String CAMPAIGN_LIST_FXML = "/fxml/campaignList.fxml";
     public static final String COMMUNICATION_MANAGER_FXML = "/fxml/communicationManager.fxml";
-    public static final String LOGIN_FXML = "/fxml/login.fxml";
-    public static final String FOLDER_SELECTION = "/fxml/folderSelection.fxml";
-    public static final String EXPLAIN_LIST = "/fxml/explainList.fxml";
-    public static final String SCHEDULE_DATE = "/fxml/scheduleDate.fxml";
-    public static final String LOADING = "/fxml/loading.fxml";
-    public static final String PASSWORD = "/fxml/password.fxml";
+    private static final String LOGIN_FXML = "/fxml/login.fxml";
+    protected static final String FOLDER_SELECTION = "/fxml/folderSelection.fxml";
+    protected static final String EXPLAIN_LIST = "/fxml/explainList.fxml";
+    protected static final String SCHEDULE_DATE = "/fxml/scheduleDate.fxml";
+    private static final String LOADING = "/fxml/loading.fxml";
+    protected static final String PASSWORD = "/fxml/password.fxml";
+    protected static final String CONFIGURATION = "/fxml/configuration.fxml";
 
 
-    public static final int API_CODE_SUCCESS = 0;
-    public static final int API_CODE_LOGOUT = 9999;
-    public static final String SESSION_EXPIRE_HEADER = "Session Expired";
-    public static final String SESSION_EXPIRE_CONTENT = "Please re-login";
-    public static final String ERROR_HEADER = "Error";
-    public static final String SUCCESS_HEADER = "Action Success";
-    public static final String ALERT_HEADER = "Alert";
+    protected static final int API_CODE_SUCCESS = 0;
+    protected static final int API_CODE_LOGOUT = 9999;
+    private static final String SESSION_EXPIRE_HEADER = "Session Expired";
+    private static final String SESSION_EXPIRE_CONTENT = "Please re-login";
+    protected static final String ERROR_HEADER = "Error";
+    protected static final String SUCCESS_HEADER = "Action Success";
+    protected static final String ALERT_HEADER = "Alert";
 
-    public final static Logger logger = Logger.getLogger(Main.class);
+    protected final static Logger logger = Logger.getLogger(Main.class);
 
 
-    public static String TITLE = "";
-    public static String ICON = "";
+    private static String TITLE = "";
+    private static String ICON = "";
     public static String SERVER_URL = "";
-    public static String linkId = "";
-    public static String currentUsername;
-    public static String currentPassword;
+    protected static String linkId = "";
+    protected static String currentUsername;
+    protected static String currentPassword;
     public static Stage stage;
     public static Scene scene;
-    public static Properties prop;
-    public static Stage loadingStage;
+    protected static Properties prop;
+    protected static Stage loadingStage;
 
     public Main() {
         prop=new Properties();
@@ -121,7 +124,7 @@ public class Main extends Application {
         scene.setRoot(root);
     }
 
-    public void lg(String a) {
+    protected void lg(String a) {
         System.out.println(a);
     }
 
@@ -141,7 +144,7 @@ public class Main extends Application {
         setSceneByView(LOGIN_FXML);
     }
 
-    public void changeDateTimeToKrTypeAndDisableEditor(DatePicker datePicker) {
+    protected void changeDateTimeToKrTypeAndDisableEditor(DatePicker datePicker) {
         String pattern = "yyyy/MM/dd";
         datePicker.setPromptText(pattern.toLowerCase());
         datePicker.setConverter(new StringConverter<LocalDate>() {
@@ -166,7 +169,7 @@ public class Main extends Application {
         datePicker.setEditable(false);
     }
 
-    public void createNotificationDialog(String header, String content, String url) {
+    protected void createNotificationDialog(String header, String content, String url) {
         if(header.equals(ERROR_HEADER)){
             String api = url != null ? url : "";
             logger.error("Error: " + content + "API: " + api);
@@ -207,10 +210,10 @@ public class Main extends Application {
     protected String getResponseFromAPI(String url) {
         try {
             BufferedReader in;
-            if (url.matches("^https:\\/\\/.+")) {
+            if (url.matches("^https://.+")) {
                 // Create a trust manager that does not validate certificate chains
                 TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
-                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
                     public void checkClientTrusted(X509Certificate[] certs, String authType) {
@@ -222,7 +225,7 @@ public class Main extends Application {
 
                 // Install the all-trusting trust manager
                 SSLContext sc = SSLContext.getInstance("SSL");
-                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                sc.init(null, trustAllCerts, new SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
                 // Create all-trusting host name verifier
@@ -252,18 +255,15 @@ public class Main extends Application {
                 response.append(inputLine);
             }
             return response.toString();
-        } catch (IOException e) {
+        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
-            createNotificationDialog(ERROR_HEADER, e.getMessage(), null);
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            e.printStackTrace();
-            createNotificationDialog(ERROR_HEADER, e.getMessage(), null);
+            Platform.runLater(() -> createNotificationDialog(ERROR_HEADER, e.getMessage(), null));
         }
         return null;
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         try {
             createLoadingWindow();
             stage = primaryStage;
@@ -300,7 +300,7 @@ public class Main extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource(LOGIN_FXML));
         Region root = loader.load();
         LoginController loginController = loader.getController();
-        scene = new Scene(root, WIDTH, HEIGHT);
+        Scene scene = new Scene(root, WIDTH, HEIGHT);
         loginController.setKeyBinding(scene);
         stage.setScene(scene);
         stage.show();

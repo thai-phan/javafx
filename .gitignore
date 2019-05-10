@@ -4,8 +4,9 @@ config.properties
 /bin/
 /out
 .classpath
-log4j-application.log
 .project
 .settings/org.eclipse.jdt.core.prefs
 /.svn
 /SCM_GM
+/logs
+/Output

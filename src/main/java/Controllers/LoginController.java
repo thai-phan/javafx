@@ -1,14 +1,22 @@
 package main.java.Controllers;
 
+import javafx.concurrent.Task;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Region;
+import javafx.stage.Modality;
 import javafx.stage.Screen;
+import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.LoginModel;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -39,7 +47,7 @@ public class LoginController extends Main {
         }
     }
     @FXML
-    protected void onLogin() throws Exception {
+    protected void onLogin() {
         if (username.getText().isEmpty()) {
             createNotificationDialog(USERNAME_EMPTY, null, null);
         } else if(password.getText().isEmpty()) {
@@ -64,25 +72,62 @@ public class LoginController extends Main {
             }
             assert ip != null;
             String urlForLogin = SERVER_URL + "/user/login?userid=" + currentUsername +"&passwd="+ currentPassword + "&ipaddr=" + ip.getHostAddress() + "&macaddr=" + macAddress;
-            String response = getResponseFromAPI(urlForLogin);
-            LoginModel loginModel = gson.fromJson(response, LoginModel.class);
-            linkId = loginModel.getPersonalInfo().getLink_id();
-            if (loginModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
-                stage.hide();
-                logger.info("Login success");
-                if (rememberMeCheckBox.isSelected()
-                        && !prop.getProperty("USERNAME").equals(currentUsername)) {
-                    FileOutputStream config = new FileOutputStream("config.properties");
-                    prop.setProperty("USERNAME", currentUsername);
-                    prop.store(config,null);
-                    config.close();
+
+
+            Task<String> newTask = new Task<String>() {
+                @Override
+                public String call() {
+                    return getResponseFromAPI(urlForLogin);
+                }
+            };
+            loadingStage.show();
+
+            newTask.setOnSucceeded(response -> {
+                loadingStage.close();
+                LoginModel loginModel = gson.fromJson((String) response.getSource().getValue(), LoginModel.class);
+                linkId = loginModel.getPersonalInfo().getLink_id();
+                if (loginModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+                    stage.hide();
+                    logger.info("Login success");
+                    if (rememberMeCheckBox.isSelected()
+                            && !prop.getProperty("USERNAME").equals(currentUsername)) {
+                        FileOutputStream config = null;
+                        try {
+                            config = new FileOutputStream("config.properties");
+                            prop.setProperty("USERNAME", currentUsername);
+                            prop.store(config,null);
+                            config.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    try {
+                        changePageCampaignList();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    createNotificationDialog(LOGIN_FAIL, null, null);
                 }
 
-                changePageCampaignList();
-            } else {
-                createNotificationDialog(LOGIN_FAIL, null, null);
-            }
+            });
+            new Thread(newTask).start();
         }
+    }
+
+    @FXML
+    private void onConfigure() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(CONFIGURATION));
+        Region root = loader.load();
+        ConfigurationController configurationController = loader.getController();
+        Scene scene = new Scene(root);
+        configurationController.setKeyBinding(scene);
+        Stage newStage = new Stage();
+        newStage.setScene(scene);
+        newStage.getIcons().add(new Image("/images/configuration.png"));
+        newStage.setTitle("Configuration");
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.showAndWait();
     }
 
     private void configurationView() {
@@ -103,7 +148,9 @@ public class LoginController extends Main {
     }
 
     private void changePageCampaignList() throws IOException {
-        setSceneByView(CAMPAIGN_LIST_FXML);
+        Parent root = FXMLLoader.load(getClass().getResource(CAMPAIGN_LIST_FXML));
+        scene = new Scene(root);
+        stage.setScene(scene);
         Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
         stage.setWidth(primScreenBounds.getWidth());
         stage.setHeight(primScreenBounds.getHeight());

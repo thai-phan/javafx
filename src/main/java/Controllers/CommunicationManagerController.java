@@ -1,12 +1,14 @@
 package main.java.Controllers;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -31,8 +33,6 @@ public class CommunicationManagerController extends Main {
     private static final String PATTERN_LAST_OF_WEEK = "\\dL";
     @FXML
     private ComboBox<ControlBindingObj> frequencyComboBox;
-    @FXML
-    private VBox dailyOptionList;
     @FXML
     private VBox monthlyOptionList;
     @FXML
@@ -94,10 +94,6 @@ public class CommunicationManagerController extends Main {
     @FXML
     private ComboBox<ControlBindingObj> yearlyMonthCombo;
     @FXML
-    private ToggleGroup frequencyDefault;
-    @FXML
-    private ToggleGroup frequencyMonthly;
-    @FXML
     private Button saveCampNameBtn;
     @FXML
     private Button saveCampScheduleBtn;
@@ -105,17 +101,52 @@ public class CommunicationManagerController extends Main {
     private Button saveCampFreqBtn;
     @FXML
     private Button saveCampDbBtn;
+    @FXML
+    private TextField resendNumberDay;
+    @FXML
+    private BorderPane namePane;
+    @FXML
+    private BorderPane datePane;
+    @FXML
+    private BorderPane schedulePane;
 
-    public boolean isView;
+
+    private ControlBindingObj firstOrdinal = new ControlBindingObj("First", "1");
+    private ControlBindingObj secondOrdinal = new ControlBindingObj("Second", "2");
+    private ControlBindingObj thirdOrdinal = new ControlBindingObj("Third", "3");
+    private ControlBindingObj fourOrdinal = new ControlBindingObj("Four", "4");
+    private ControlBindingObj lastOrdinal = new ControlBindingObj("Last", "5");
+    private ControlBindingObj lastDayOrdinal = new ControlBindingObj("Last day", "6");
+    private ControlBindingObj sunday = new ControlBindingObj("Sunday", "1");
+    private ControlBindingObj monday = new ControlBindingObj("Monday", "2");
+    private ControlBindingObj tuesday = new ControlBindingObj("Tuesday", "3");
+    private ControlBindingObj wednesday = new ControlBindingObj("Wednesday", "4");
+    private ControlBindingObj thursday = new ControlBindingObj("Thursday", "5");
+    private ControlBindingObj friday = new ControlBindingObj("Friday", "6");
+    private ControlBindingObj saturday = new ControlBindingObj("Saturday", "7");
+    private ControlBindingObj january = new ControlBindingObj("January", "1");
+    private ControlBindingObj february = new ControlBindingObj("February", "2");
+    private ControlBindingObj march = new ControlBindingObj("March", "3");
+    private ControlBindingObj april = new ControlBindingObj("April", "4");
+    private ControlBindingObj may = new ControlBindingObj("May", "5");
+    private ControlBindingObj june = new ControlBindingObj("June", "6");
+    private ControlBindingObj july = new ControlBindingObj("July", "7");
+    private ControlBindingObj august = new ControlBindingObj("August", "1");
+    private ControlBindingObj september = new ControlBindingObj("September", "2");
+    private ControlBindingObj october = new ControlBindingObj("October", "3");
+    private ControlBindingObj november = new ControlBindingObj("November", "4");
+    private ControlBindingObj december = new ControlBindingObj("December", "5");
+
+    boolean isView;
     private String campaignId;
     private Map<String, CheckBox> weekDayMap = new HashMap<>();
     private LocalDate localDate;
 
-    public void setCampaignId(String campaignId) {
+    void setCampaignId(String campaignId) {
         this.campaignId = campaignId;
     }
 
-    public String getCampaignId() {
+    private String getCampaignId() {
         return campaignId;
     }
 
@@ -134,7 +165,7 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
-    protected void saveCampaignName(ActionEvent event) throws Exception {
+    protected void saveCampaignName() throws Exception {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
@@ -157,9 +188,10 @@ public class CommunicationManagerController extends Main {
             String updatedActlComEnd = actlComEnd.getValue().toString();
             String updatedPlanComStart = planComStart.getValue().toString();
             String updatedPlanComEnd = planComEnd.getValue().toString();
+            String resendDays = resendNumberDay.getText();
             String urlForUpdateCampSchedule = SERVER_URL + "/cm/update/date?link_id=" + linkId + "&cm_id=" + getCampaignId()
                     + "&act_comm_sdt=" + updatedActlComStart + "&act_comm_edt=" + updatedActlComEnd
-                    + "&plan_comm_sdt=" + updatedPlanComStart + "&plan_comm_edt=" + updatedPlanComEnd;
+                    + "&plan_comm_sdt=" + updatedPlanComStart + "&plan_comm_edt=" + updatedPlanComEnd + "&dedup_days=" + resendDays;
             String responseForUpdateCampSchedule = getResponseFromAPI(urlForUpdateCampSchedule);
             Resultinfo resultinfo = gson.fromJson(responseForUpdateCampSchedule, Resultinfo.class);
             notificationForAction(resultinfo, urlForUpdateCampSchedule);
@@ -280,7 +312,7 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
-    protected void cancelCampaign(ActionEvent event) throws Exception {
+    protected void cancelCampaign() throws Exception {
         setSceneByView(CAMPAIGN_LIST_FXML);
     }
 
@@ -290,7 +322,23 @@ public class CommunicationManagerController extends Main {
             saveCampScheduleBtn.setManaged(false);
             saveCampFreqBtn.setManaged(false);
             saveCampDbBtn.setManaged(false);
+        } else {
+            monthlyOrdinalCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not());
+            monthlyDayCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not().or(monthlyOrdinalCombo.valueProperty().isEqualTo(lastDayOrdinal)));
+            monthlyDateList.disableProperty().bind(monthlySpecificRadio.selectedProperty().not());
+            freqEnd.disableProperty().bind(endDateRadio.selectedProperty().not());
         }
+
+        resendNumberDay.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue.isEmpty() && (!newValue.matches("\\d*") || Integer.valueOf(newValue) > 1000)) {
+                resendNumberDay.setText(oldValue);
+            }
+        });
+        resendNumberDay.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue && resendNumberDay.getText().isEmpty()) {
+                resendNumberDay.setText("0");
+            }
+        });
         weekDayMap.put("1", weeklySundayCheck);
         weekDayMap.put("2", weeklyMondayCheck);
         weekDayMap.put("3", weeklyTuesdayCheck);
@@ -299,56 +347,20 @@ public class CommunicationManagerController extends Main {
         weekDayMap.put("6", weeklyFridayCheck);
         weekDayMap.put("7", weeklySaturdayCheck);
 
-        monthlyOrdinalCombo.getItems().addAll(
-                new ControlBindingObj("First", "1"),
-                new ControlBindingObj("Second", "2"),
-                new ControlBindingObj("Third", "3"),
-                new ControlBindingObj("Four", "4"),
-                new ControlBindingObj("Last", "5"),
-                new ControlBindingObj("Last day", "6"));
+        monthlyOrdinalCombo.getItems().addAll(firstOrdinal, secondOrdinal, thirdOrdinal, fourOrdinal, lastOrdinal, lastDayOrdinal);
         monthlyOrdinalCombo.getSelectionModel().selectFirst();
 
-        monthlyDayCombo.getItems().addAll(
-                new ControlBindingObj("Sunday", "1"),
-                new ControlBindingObj("Monday", "2"),
-                new ControlBindingObj("Tuesday", "3"),
-                new ControlBindingObj("Wednesday", "4"),
-                new ControlBindingObj("Thursday", "5"),
-                new ControlBindingObj("Friday", "6"),
-                new ControlBindingObj("Saturday", "7"));
+        monthlyDayCombo.getItems().addAll(sunday, monday, tuesday, wednesday, thursday, friday, saturday);
+
         monthlyDayCombo.getSelectionModel().selectFirst();
 
-        yearlyOrdinalCombo.getItems().addAll(
-                new ControlBindingObj("First", "1"),
-                new ControlBindingObj("Second", "2"),
-                new ControlBindingObj("Third", "3"),
-                new ControlBindingObj("Four", "4"),
-                new ControlBindingObj("Last", "5"));
+        yearlyOrdinalCombo.getItems().addAll(firstOrdinal, secondOrdinal, thirdOrdinal, fourOrdinal, lastOrdinal);
         yearlyOrdinalCombo.getSelectionModel().selectFirst();
 
-        yearlyDayCombo.getItems().addAll(
-                new ControlBindingObj("Sunday", "1"),
-                new ControlBindingObj("Monday", "2"),
-                new ControlBindingObj("Tuesday", "3"),
-                new ControlBindingObj("Wednesday", "4"),
-                new ControlBindingObj("Thursday", "5"),
-                new ControlBindingObj("Friday", "6"),
-                new ControlBindingObj("Saturday", "7"));
+        yearlyDayCombo.getItems().addAll(sunday, monday, tuesday, wednesday, thursday, friday, saturday);
         yearlyDayCombo.getSelectionModel().selectFirst();
 
-        yearlyMonthCombo.getItems().addAll(
-                new ControlBindingObj("January", "1"),
-                new ControlBindingObj("February", "2"),
-                new ControlBindingObj("March", "3"),
-                new ControlBindingObj("April", "4"),
-                new ControlBindingObj("May", "5"),
-                new ControlBindingObj("June", "6"),
-                new ControlBindingObj("July", "7"),
-                new ControlBindingObj("August", "1"),
-                new ControlBindingObj("September", "2"),
-                new ControlBindingObj("October", "3"),
-                new ControlBindingObj("November", "4"),
-                new ControlBindingObj("December", "5"));
+        yearlyMonthCombo.getItems().addAll(january, february, march, april, may, june, july, august, september, october, november, december);
         yearlyMonthCombo.getSelectionModel().selectFirst();
 
         changeDateTimeToKrTypeAndDisableEditor(actlComStart);
@@ -359,75 +371,22 @@ public class CommunicationManagerController extends Main {
         changeDateTimeToKrTypeAndDisableEditor(freqEnd);
         setTextFieldLength(campaignName, 40);
         setTextFieldLength(campaignDescription, 100);
-
-        monthlyOrdinalCombo.setDisable(true);
-        monthlyDayCombo.setDisable(true);
-        monthlyDateList.setDisable(true);
-        freqEnd.setDisable(true);
     }
 
     private void configurationViewAfterLoadData() {
         if (isView) {
-            campaignName.setDisable(true);
-            campaignDescription.setDisable(true);
-            actlComStart.setDisable(true);
-            actlComEnd.setDisable(true);
-            planComStart.setDisable(true);
-            planComEnd.setDisable(true);
-            frequencyComboBox.setDisable(true);
-            freqStart.setDisable(true);
-            freqEnd.setDisable(true);
-            endDateRadio.setDisable(true);
-            noEndDateRadio.setDisable(true);
-            weeklySundayCheck.setDisable(true);
-            weeklyMondayCheck.setDisable(true);
-            weeklyTuesdayCheck.setDisable(true);
-            weeklyWednesdayCheck.setDisable(true);
-            weeklyThursdayCheck.setDisable(true);
-            weeklyFridayCheck.setDisable(true);
-            weeklySaturdayCheck.setDisable(true);
-            monthlyDayRadio.setDisable(true);
-            monthlyOrdinalCombo.setDisable(true);
-            monthlyDayCombo.setDisable(true);
-            monthlySpecificRadio.setDisable(true);
-            monthlyDateList.setDisable(true);
-            yearlyOrdinalCombo.setDisable(true);
-            yearlyDayCombo.setDisable(true);
-            yearlyMonthCombo.setDisable(true);
+            namePane.setDisable(true);
+            datePane.setDisable(true);
+            schedulePane.setDisable(true);
             databaseListComboBox.setDisable(true);
             viewListComboBox.setDisable(true);
         }
+        weeklyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Weekly")).findAny().orElse(null)));
+        monthlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Monthly")).findAny().orElse(null)));
+        yearlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Yearly")).findAny().orElse(null)));
     }
 
     private void addListener() {
-        frequencyComboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            updateFrequencyBox(newValue.getId());
-        });
-        frequencyDefault.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals(endDateRadio)) {
-                freqEnd.setDisable(false);
-            } else {
-                freqEnd.setDisable(true);
-            }
-        });
-        frequencyMonthly.selectedToggleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.equals(monthlyDayRadio)) {
-                monthlyOrdinalCombo.setDisable(false);
-                monthlyDayCombo.setDisable(false);
-                monthlyDateList.setDisable(true);
-            } else {
-                monthlyOrdinalCombo.setDisable(true);
-                monthlyDayCombo.setDisable(true);
-                monthlyDateList.setDisable(false);
-            }
-        });
-        monthlyOrdinalCombo.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue.getName().equals("Last day")) {
-                monthlyDayCombo.setDisable(true);
-            } else {
-                monthlyDayCombo.setDisable(false);
-            }
-        });
         databaseListComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
             try {
                 loadViewListByDatabaseName(newVal, null);
@@ -435,39 +394,6 @@ public class CommunicationManagerController extends Main {
                 e.printStackTrace();
             }
         });
-    }
-
-    private void updateFrequencyBox(String id) {
-        switch (id) {
-            case "1": {
-                dailyOptionList.setVisible(true);
-                weeklyOptionList.setVisible(false);
-                monthlyOptionList.setVisible(false);
-                yearlyOptionList.setVisible(false);
-                break;
-            }
-            case "2": {
-                dailyOptionList.setVisible(false);
-                weeklyOptionList.setVisible(true);
-                monthlyOptionList.setVisible(false);
-                yearlyOptionList.setVisible(false);
-                break;
-            }
-            case "3": {
-                dailyOptionList.setVisible(false);
-                weeklyOptionList.setVisible(false);
-                monthlyOptionList.setVisible(true);
-                yearlyOptionList.setVisible(false);
-                break;
-            }
-            case "4": {
-                dailyOptionList.setVisible(false);
-                weeklyOptionList.setVisible(false);
-                monthlyOptionList.setVisible(false);
-                yearlyOptionList.setVisible(true);
-                break;
-            }
-        }
     }
 
     private void loadDataFromAPI() throws IOException, ParseException {
@@ -484,30 +410,11 @@ public class CommunicationManagerController extends Main {
             Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
             campaignName.setText(campaign.getName());
             campaignDescription.setText(campaign.getDescription());
-            if (campaign.getActual_Communication_Start_Dt() != null) {
-                actlComStart.setValue(LocalDate.parse(campaign.getActual_Communication_Start_Dt()));
-            } else {
-                actlComStart.setValue(localDate);
-            }
-
-            if (campaign.getActual_Communication_End_Dt() != null) {
-                actlComEnd.setValue(LocalDate.parse(campaign.getActual_Communication_End_Dt()));
-            } else {
-                actlComEnd.setValue(localDate);
-            }
-
-            if (campaign.getPlanned_Communication_Start_Dt() != null) {
-                planComStart.setValue(LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()));
-            } else {
-                planComStart.setValue(localDate);
-
-            }
-            if (campaign.getPlanned_Communication_End_Dt() != null) {
-                planComEnd.setValue(LocalDate.parse(campaign.getPlanned_Communication_End_Dt()));
-            } else {
-                planComEnd.setValue(localDate);
-            }
-
+            actlComStart.setValue(campaign.getActual_Communication_Start_Dt() != null ? LocalDate.parse(campaign.getActual_Communication_Start_Dt()) : localDate);
+            actlComEnd.setValue(campaign.getActual_Communication_End_Dt() != null ? LocalDate.parse(campaign.getActual_Communication_End_Dt()) : localDate);
+            planComStart.setValue(campaign.getPlanned_Communication_Start_Dt() != null ? LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()) : localDate);
+            planComEnd.setValue(campaign.getPlanned_Communication_End_Dt() != null ? LocalDate.parse(campaign.getPlanned_Communication_End_Dt()) : localDate);
+            resendNumberDay.setText(campaign.getDeduplication_Days_Num() != null ? campaign.getDeduplication_Days_Num() : "0");
         } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
             logoutByExpireSession(urlForCampaignInfo);
         } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
@@ -544,7 +451,6 @@ public class CommunicationManagerController extends Main {
             frequencyComboBox.getSelectionModel().select(selectedFrequency);
             // Bind data to field list
             SchInfos scheduleDetail = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0);
-            updateFrequencyBox(scheduleDetail.getSchedule_type_cd());
             if (!scheduleDetail.getSchedule_start_dttm_ftm().isEmpty()) {
                 Date freqStartDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_start_dttm_ftm());
                 freqStart.setValue(freqStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
@@ -552,7 +458,6 @@ public class CommunicationManagerController extends Main {
             if (!scheduleDetail.getSchedule_end_dttm_ftm().equals(NO_END_DATE)) {
                 endDateRadio.setSelected(true);
                 Date freqEndDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_end_dttm_ftm());
-                freqEnd.setDisable(false);
                 freqEnd.setValue(freqEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
             } else {
                 noEndDateRadio.setSelected(true);
@@ -573,7 +478,6 @@ public class CommunicationManagerController extends Main {
             frequencyComboBox.getSelectionModel().selectFirst();
             freqStart.setValue(localDate);
             endDateRadio.setSelected(true);
-            freqEnd.setDisable(false);
             freqEnd.setValue(localDate);
         } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
             logoutByExpireSession(urlForFrequencyDetail);
@@ -601,8 +505,6 @@ public class CommunicationManagerController extends Main {
         switch (schedule.getOpt_num()) {
             case "1":
                 monthlyDayRadio.setSelected(true);
-                monthlyOrdinalCombo.setDisable(false);
-                monthlyDayCombo.setDisable(false);
                 if (schedule.getCron_Week().matches(PATTERN_ORDINAL_WEEK)){
                     String dayPos = schedule.getCron_Week().split("#")[0];
                     String ordinalPos = schedule.getCron_Week().split("#")[1];
@@ -625,7 +527,6 @@ public class CommunicationManagerController extends Main {
                 break;
             case "2":
                 monthlySpecificRadio.setSelected(true);
-                monthlyDateList.setDisable(false);
                 if (schedule.getCron_Dd().matches(PATTERN_DAY_LIST)) {
                     monthlyDateList.setText(schedule.getCron_Dd());
                 }

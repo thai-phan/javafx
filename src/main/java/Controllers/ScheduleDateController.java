@@ -19,11 +19,11 @@ public class ScheduleDateController extends Main {
     private String campaignId;
     private CampaignListController campaignListController;
 
-    public void setCampaignId(String campaignId) {
+    void setCampaignId(String campaignId) {
         this.campaignId = campaignId;
     }
 
-    public void setCampaignListController(CampaignListController campaignListController) {
+    void setCampaignListController(CampaignListController campaignListController) {
         this.campaignListController = campaignListController;
     }
 
@@ -35,7 +35,7 @@ public class ScheduleDateController extends Main {
         Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
         Stage currentStage = (Stage) scheduleDate.getScene().getWindow();
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            createNotificationDialog("Success", resultinfo.getErrString(), null);
+            createNotificationDialog(SUCCESS_HEADER, null, null);
             currentStage.close();
             campaignListController.loadCampaignTable();
         } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
