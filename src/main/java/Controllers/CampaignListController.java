@@ -113,7 +113,7 @@ public class CampaignListController extends Main
     private void editCampaign() {
         searchedText = campaignSearch.getText();
         selectedStatus = statusListComboBox.getSelectionModel().getSelectedItem();
-        Task<Region> createTask = new Task<Region>() {
+        Task<Region> newTask = new Task<Region>() {
             @Override
             public Region call() throws IOException {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
@@ -129,19 +129,19 @@ public class CampaignListController extends Main
         if (!loadingStage.isShowing()) {
             loadingStage.show();
         }
-        createTask.setOnSucceeded(event -> {
+        newTask.setOnSucceeded(event -> {
             Region root = (Region) event.getSource().getValue();
             scene.setRoot(root);
             loadingStage.hide();
         });
-        new Thread(createTask).start();
+        new Thread(newTask).start();
     }
 
     @FXML
     public void onViewCampaign() {
         searchedText = campaignSearch.getText();
         selectedStatus = statusListComboBox.getSelectionModel().getSelectedItem();
-        Task<Region> createTask = new Task<Region>() {
+        Task<Region> newTask = new Task<Region>() {
             @Override
             public Region call() throws IOException {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
@@ -157,12 +157,12 @@ public class CampaignListController extends Main
         if (!loadingStage.isShowing()) {
             loadingStage.show();
         }
-        createTask.setOnSucceeded(event -> {
+        newTask.setOnSucceeded(event -> {
             Region root = (Region) event.getSource().getValue();
             scene.setRoot(root);
             loadingStage.hide();
         });
-        new Thread(createTask).start();
+        new Thread(newTask).start();
     }
 
     @FXML
@@ -377,7 +377,7 @@ public class CampaignListController extends Main
     void loadMasterFolderList() {
         String urlForMasterFolder = SERVER_URL + "/cm/list/folder_up?link_id=" + linkId;
 
-        Task<String> createTask = new Task<String>() {
+        Task<String> newTask = new Task<String>() {
             @Override
             public String call() {
                 return getResponseFromAPI(urlForMasterFolder);
@@ -386,7 +386,7 @@ public class CampaignListController extends Main
         if (!loadingStage.isShowing()) {
             loadingStage.show();
         }
-        createTask.setOnSucceeded(response -> {
+        newTask.setOnSucceeded(response -> {
             MasterFolderModel masterFolderObj = gson.fromJson((String) response.getSource().getValue(), MasterFolderModel.class);
             if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && masterFolderObj.getCmFolderList().getCmFolderData().size() > 0) {
                 ObservableList<ControlBindingObj> folderList = FXCollections.observableArrayList();
@@ -410,12 +410,12 @@ public class CampaignListController extends Main
             }
             loadingStage.hide();
         });
-        new Thread(createTask).start();
+        new Thread(newTask).start();
     }
 
 
     private void loadSubFolderListOnTree(Boolean newFolder) {
-        Task<TreeItem<ControlBindingObj>> createTask = new Task<TreeItem<ControlBindingObj>>() {
+        Task<TreeItem<ControlBindingObj>> newTask = new Task<TreeItem<ControlBindingObj>>() {
             @Override
             public TreeItem<ControlBindingObj> call() throws IOException {
                 return loadFolderTreeItem(selectedMasterFolder);
@@ -424,7 +424,7 @@ public class CampaignListController extends Main
         if (!loadingStage.isShowing()) {
             loadingStage.show();
         }
-        createTask.setOnSucceeded(response -> {
+        newTask.setOnSucceeded(response -> {
             TreeItem<ControlBindingObj> item = (TreeItem<ControlBindingObj>) response.getSource().getValue();
             folderTree.setRoot(item);
             folderTree.setShowRoot(false);
@@ -447,7 +447,7 @@ public class CampaignListController extends Main
             loadingStage.hide();
 
         });
-        new Thread(createTask).start();
+        new Thread(newTask).start();
 
 
     }
@@ -471,7 +471,7 @@ public class CampaignListController extends Main
         }
 
         String finalUrlForCampaignList = urlForCampaignList;
-        Task<String> createTask = new Task<String>() {
+        Task<String> newTask = new Task<String>() {
             @Override
             public String call() {
                 return getResponseFromAPI(finalUrlForCampaignList);
@@ -480,7 +480,7 @@ public class CampaignListController extends Main
         if (!loadingStage.isShowing()) {
             loadingStage.show();
         }
-        createTask.setOnSucceeded(event -> {
+        newTask.setOnSucceeded(event -> {
             String responseForCampList = (String) event.getSource().getValue();
             CampaignListModel campListObj = gson.fromJson(responseForCampList, CampaignListModel.class);
             if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() > 0) {
@@ -520,7 +520,7 @@ public class CampaignListController extends Main
             loadingStage.hide();
 
         });
-        new Thread(createTask).start();
+        new Thread(newTask).start();
 
 
     }
@@ -602,15 +602,31 @@ public class CampaignListController extends Main
     private void changeCampaignStatus(String status) throws IOException {
         String campaignId = selectedCampaign.getEntity_Id();
         String urlForChangeStatus = SERVER_URL + "/cm/change/status?link_id=" + linkId + "&cm_id=" + campaignId + "&statuscd=" + status;
-        String responseForChangeStatus = getResponseFromAPI(urlForChangeStatus);
-        Resultinfo resultinfo = gson.fromJson(responseForChangeStatus, Resultinfo.class);
-        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            createNotificationDialog(SUCCESS_HEADER, null, null);
-            loadCampaignTable();
-        } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(urlForChangeStatus);
-        } else {
-            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForChangeStatus);
-        }
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForChangeStatus);
+            }
+        };
+
+        loadingStage.show();
+
+        newTask.setOnSucceeded(response -> {
+            loadingStage.hide();
+            Resultinfo resultinfo = gson.fromJson((String) response.getSource().getValue(), Resultinfo.class);
+            if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
+                createNotificationDialog(SUCCESS_HEADER, null, null);
+                loadCampaignTable();
+            } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
+                try {
+                    logoutByExpireSession(urlForChangeStatus);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForChangeStatus);
+            }
+        });
+        new Thread(newTask).start();
     }
 }

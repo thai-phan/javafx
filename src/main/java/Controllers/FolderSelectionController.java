@@ -64,7 +64,7 @@ public class FolderSelectionController extends Main {
             e.printStackTrace();
         }
         String finalUrlForDuplicateCampaign = urlForDuplicateCampaign;
-        Task<String> createTask = new Task<String>() {
+        Task<String> newTask = new Task<String>() {
             @Override
             public String call() throws IOException {
                 return getResponseFromAPI(finalUrlForDuplicateCampaign);
@@ -72,7 +72,7 @@ public class FolderSelectionController extends Main {
             }
         };
         loadingStage.show();
-        createTask.setOnSucceeded(event -> {
+        newTask.setOnSucceeded(event -> {
             Resultinfo resultinfo = gson.fromJson((String) event.getSource().getValue(), Resultinfo.class);
             switch (resultinfo.getErrCd()) {
                 case API_CODE_SUCCESS:
@@ -99,7 +99,7 @@ public class FolderSelectionController extends Main {
             loadingStage.hide();
         });
 
-        new Thread(createTask).start();
+        new Thread(newTask).start();
 
     }
 
@@ -110,6 +110,7 @@ public class FolderSelectionController extends Main {
     }
 
     public void initialize() {
+        selectionFolderTree.setShowRoot(false);
         setTextFieldLength(newName, 40);
         setTextFieldLength(newDescription, 100);
         duplicateBtn.disableProperty().bind(Bindings.size(selectionFolderTree.getSelectionModel().getSelectedItems()).isEqualTo(0));
@@ -118,18 +119,7 @@ public class FolderSelectionController extends Main {
     void loadTreeFolderList(ComboBox<ControlBindingObj> masterFolder){
         TreeItem<ControlBindingObj> folderTreeRoot = new TreeItem<>();
         masterFolder.getItems()
-                .forEach(index -> folderTreeRoot.getChildren().add(loadMasterFolderTreeItem(index)));
+                .forEach(index -> folderTreeRoot.getChildren().add(loadFolderTreeItem(index)));
         selectionFolderTree.setRoot(folderTreeRoot);
-        selectionFolderTree.setShowRoot(false);
-    }
-
-    private TreeItem<ControlBindingObj> loadMasterFolderTreeItem(ControlBindingObj index) {
-        TreeItem<ControlBindingObj> masterFolder = null;
-        try {
-            masterFolder = loadFolderTreeItem(index);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return masterFolder;
     }
 }

@@ -10,3 +10,4 @@ config.properties
 /SCM_GM
 /logs
 /Output
+/.settings

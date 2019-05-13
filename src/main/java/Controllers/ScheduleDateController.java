@@ -1,5 +1,6 @@
 package main.java.Controllers;
 
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -31,19 +32,33 @@ public class ScheduleDateController extends Main {
     public void onSaveScheduleDate() throws IOException {
         String scheduleDateValue = scheduleDate.getValue().toString().replace("-", "");
         String urlForRunSchedule = SERVER_URL + "/sch/run_link?link_id=" + linkId + "&date=" + scheduleDateValue + "&cm_id=" + campaignId;
-        String response = getResponseFromAPI(urlForRunSchedule);
-        Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
-        Stage currentStage = (Stage) scheduleDate.getScene().getWindow();
-        if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
-            createNotificationDialog(SUCCESS_HEADER, null, null);
-            currentStage.close();
-            campaignListController.loadCampaignTable();
-        } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(urlForRunSchedule);
-        } else {
-            createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForRunSchedule);
-            currentStage.close();
-        }
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForRunSchedule);
+            }
+        };
+        loadingStage.show();
+        newTask.setOnSucceeded(response -> {
+            loadingStage.hide();
+            Resultinfo resultinfo = gson.fromJson((String) response.getSource().getValue(), Resultinfo.class);
+            Stage currentStage = (Stage) scheduleDate.getScene().getWindow();
+            if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
+                createNotificationDialog(SUCCESS_HEADER, null, null);
+                currentStage.close();
+                campaignListController.loadCampaignTable();
+            } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
+                try {
+                    logoutByExpireSession(urlForRunSchedule);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForRunSchedule);
+                currentStage.close();
+            }
+        });
+        new Thread(newTask).start();
     }
 
     public void initialize() {

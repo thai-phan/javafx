@@ -25,6 +25,11 @@ SolidCompression=yes
 WizardStyle=modern
 UsePreviousAppDir=no
 
+[Dirs]
+; Change permission to update file for install folder (Program File)
+Name: {app}; Permissions: users-full
+
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 

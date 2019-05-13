@@ -186,7 +186,7 @@ public class Main extends Application {
         alert.showAndWait();
     }
 
-    public TreeItem<ControlBindingObj> loadFolderTreeItem(ControlBindingObj masterFolder) throws IOException {
+    public TreeItem<ControlBindingObj> loadFolderTreeItem(ControlBindingObj masterFolder) {
         String urlForSubFolder = SERVER_URL + "/cm/list/folder?link_id=" + linkId +"&parentid=" + masterFolder.getId();
         String responseForSubFolder = getResponseFromAPI(urlForSubFolder);
         MasterFolderModel subFolderObj = gson.fromJson(responseForSubFolder, MasterFolderModel.class);
@@ -197,10 +197,16 @@ public class Main extends Application {
                             new ControlBindingObj(index.getDisplay_Name(), index.getFolder_Id()))));
             return item;
         } else if (subFolderObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logout();
+            Platform.runLater(() -> {
+                try {
+                    logout();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
             return null;
         } else if (subFolderObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && subFolderObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, subFolderObj.getResultinfo().getErrString(), urlForSubFolder);
+            Platform.runLater(() -> createNotificationDialog(ERROR_HEADER, subFolderObj.getResultinfo().getErrString(), urlForSubFolder));
             return null;
         } else {
             return null;
@@ -213,14 +219,14 @@ public class Main extends Application {
             if (url.matches("^https://.+")) {
                 // Create a trust manager that does not validate certificate chains
                 TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
                     }
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
                 };
 
                 // Install the all-trusting trust manager

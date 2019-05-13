@@ -330,7 +330,7 @@ public class CommunicationManagerController extends Main {
         }
 
         resendNumberDay.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty() && (!newValue.matches("\\d*") || Integer.valueOf(newValue) > 1000)) {
+            if (!newValue.isEmpty() && (!newValue.matches("\\d*") || (Integer.valueOf(newValue) > 1000))) {
                 resendNumberDay.setText(oldValue);
             }
         });

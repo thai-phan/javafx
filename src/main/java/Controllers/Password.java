@@ -54,14 +54,14 @@ public class Password extends Main {
             String newPwdValue = newPwd.getText();
             String urlForSaveNewPassword = SERVER_URL + "/user/chg/password?link_id=" + linkId
                     + "&passwd=" + oldPwdValue + "&newpasswd=" + newPwdValue;
-            Task<String> createTask = new Task<String>() {
+            Task<String> newTask = new Task<String>() {
                 @Override
                 public String call() {
                     return getResponseFromAPI(urlForSaveNewPassword);
                 }
             };
             loadingStage.show();
-            createTask.setOnSucceeded(event -> {
+            newTask.setOnSucceeded(event -> {
                 String response = (String) event.getSource().getValue();
                 Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
                 switch (resultinfo.getErrCd()) {
@@ -83,7 +83,7 @@ public class Password extends Main {
                 }
                 loadingStage.hide();
             });
-            new Thread(createTask).start();
+            new Thread(newTask).start();
         }
     }
 
