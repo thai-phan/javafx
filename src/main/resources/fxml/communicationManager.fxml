@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="768.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CommunicationManagerController">
+<BorderPane prefHeight="849.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CommunicationManagerController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -78,7 +78,7 @@
                         </HBox>
                      </right>
                   </BorderPane>
-                  <BorderPane fx:id="datePane" prefHeight="235.0" prefWidth="1046.0" style="-fx-border-radius: 5; -fx-border-color: gray;">
+                  <BorderPane fx:id="datePane" prefHeight="228.0" prefWidth="1046.0" style="-fx-border-radius: 5; -fx-border-color: gray;">
                      <VBox.margin>
                         <Insets bottom="10.0" />
                      </VBox.margin>
@@ -383,11 +383,48 @@
                         <Insets bottom="10.0" />
                      </VBox.margin>
                   </BorderPane>
-                  <BorderPane fx:id="dbPane" layoutX="20.0" layoutY="20.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                  <BorderPane fx:id="channelPane" layoutX="20.0" layoutY="631.0" prefHeight="75.0" prefWidth="1344.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                     <center>
+                        <HBox alignment="CENTER_LEFT" prefHeight="74.0" prefWidth="1678.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="10.0" prefHeight="75.0" prefWidth="400.0">
+                                 <children>
+                                    <Text text="Channel" textAlignment="RIGHT" wrappingWidth="80.0">
+                                       <HBox.margin>
+                                          <Insets right="5.0" />
+                                       </HBox.margin>
+                                    </Text>
+                                    <ComboBox fx:id="channelListComboBox" prefHeight="37.0" prefWidth="290.0" />
+                                 </children>
+                              </HBox>
+                              <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="340.0" />
+                              <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="340.0" />
+                              <HBox alignment="CENTER" layoutX="599.0" layoutY="10.0" prefHeight="94.0" prefWidth="117.0" />
+                           </children>
+                           <padding>
+                              <Insets left="20.0" right="20.0" />
+                           </padding>
+                        </HBox>
+                     </center>
+                     <right>
+                        <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <Button fx:id="saveChannelBtn" mnemonicParsing="false" onAction="#onSaveChannel" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                           </children>
+                           <padding>
+                              <Insets bottom="10.0" right="20.0" />
+                           </padding>
+                        </HBox>
+                     </right>
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </BorderPane>
+                  <BorderPane fx:id="dbPane" layoutX="20.0" layoutY="20.0" prefHeight="75.0" prefWidth="1344.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
                       <center>
-                          <HBox alignment="CENTER_LEFT" prefHeight="74.0" prefWidth="1678.0" BorderPane.alignment="CENTER">
+                          <HBox alignment="CENTER_LEFT" prefHeight="56.0" prefWidth="1217.0" BorderPane.alignment="CENTER">
                               <children>
-                                  <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="430.0">
+                                  <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="400.0">
                                       <children>
                                           <Text text="Database" textAlignment="RIGHT" wrappingWidth="80.0">
                                        <HBox.margin>
@@ -396,7 +433,7 @@
                                           <ComboBox fx:id="databaseListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                       </children>
                                   </HBox>
-                                  <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="430.0">
+                                  <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="400.0">
                                       <children>
                                           <Text text="View" textAlignment="RIGHT" wrappingWidth="80.0">
                                        <HBox.margin>
@@ -406,7 +443,7 @@
                                           <ComboBox fx:id="viewListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                       </children>
                                   </HBox>
-                              <HBox alignment="CENTER" layoutX="599.0" layoutY="10.0" prefHeight="76.0" prefWidth="142.0">
+                              <HBox alignment="CENTER" layoutX="599.0" layoutY="10.0" prefHeight="94.0" prefWidth="117.0">
                                  <children>
                                     <Button fx:id="explainDbBtn" mnemonicParsing="false" onAction="#onExplainDatabase" prefHeight="36.0" prefWidth="100.0" text="Explain">
                                        <HBox.margin>

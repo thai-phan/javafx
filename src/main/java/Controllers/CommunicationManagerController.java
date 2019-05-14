@@ -1,9 +1,8 @@
 package main.java.Controllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -16,6 +15,7 @@ import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.*;
 import main.java.Models.ModelObject.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -60,6 +60,8 @@ public class CommunicationManagerController extends Main {
     @FXML
     private RadioButton noEndDateRadio;
     @FXML
+    private ComboBox<ControlBindingObj> channelListComboBox;
+    @FXML
     private ComboBox<String> databaseListComboBox;
     @FXML
     private ComboBox<String> viewListComboBox;
@@ -102,6 +104,8 @@ public class CommunicationManagerController extends Main {
     @FXML
     private Button saveCampDbBtn;
     @FXML
+    private Button saveChannelBtn;
+    @FXML
     private TextField resendNumberDay;
     @FXML
     private BorderPane namePane;
@@ -109,7 +113,8 @@ public class CommunicationManagerController extends Main {
     private BorderPane datePane;
     @FXML
     private BorderPane schedulePane;
-
+    @FXML
+    private BorderPane channelPane;
 
     private ControlBindingObj firstOrdinal = new ControlBindingObj("First", "1");
     private ControlBindingObj secondOrdinal = new ControlBindingObj("Second", "2");
@@ -154,11 +159,7 @@ public class CommunicationManagerController extends Main {
         if (getCampaignId() != null) {
             localDate = (new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             configurationView();
-            try {
-                loadDataFromAPI();
-            } catch (IOException | ParseException e) {
-                e.printStackTrace();
-            }
+            loadDataFromAPI();
             configurationViewAfterLoadData();
             addListener();
         }
@@ -283,6 +284,20 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
+    private void onSaveChannel() throws IOException {
+        Alert alert = createAlert("Confirm to Save");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            String channelId = channelListComboBox.getSelectionModel().getSelectedItem().getId();
+            String url = SERVER_URL + "/cm/change/channel?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                    + "&channel_id=" + channelId;
+            String response = getResponseFromAPI(url);
+            Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
+            notificationForAction(resultinfo, null);
+        }
+    }
+
+    @FXML
     private void onSaveCampDatabase() throws IOException {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
@@ -322,12 +337,14 @@ public class CommunicationManagerController extends Main {
             saveCampScheduleBtn.setManaged(false);
             saveCampFreqBtn.setManaged(false);
             saveCampDbBtn.setManaged(false);
+            saveChannelBtn.setManaged(false);
         } else {
             monthlyOrdinalCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not());
             monthlyDayCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not().or(monthlyOrdinalCombo.valueProperty().isEqualTo(lastDayOrdinal)));
             monthlyDateList.disableProperty().bind(monthlySpecificRadio.selectedProperty().not());
             freqEnd.disableProperty().bind(endDateRadio.selectedProperty().not());
         }
+
 
         resendNumberDay.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && (!newValue.matches("\\d*") || (Integer.valueOf(newValue) > 1000))) {
@@ -378,112 +395,202 @@ public class CommunicationManagerController extends Main {
             namePane.setDisable(true);
             datePane.setDisable(true);
             schedulePane.setDisable(true);
+            channelPane.setDisable(true);
             databaseListComboBox.setDisable(true);
             viewListComboBox.setDisable(true);
         }
-        weeklyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Weekly")).findAny().orElse(null)));
-        monthlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Monthly")).findAny().orElse(null)));
-        yearlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Yearly")).findAny().orElse(null)));
     }
 
     private void addListener() {
         databaseListComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            try {
+            if (!StringUtils.isEmpty(oldVal)) {
                 loadViewListByDatabaseName(newVal, null);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         });
     }
 
-    private void loadDataFromAPI() throws IOException, ParseException {
+    private void loadDataFromAPI() {
         loadCampaignInfo();
         loadDatabaseList();
         loadFrequencyList();
+        loadFrequencyDetail();
     }
 
-    private void loadCampaignInfo() throws IOException {
+    private void loadCampaignInfo() {
         String urlForCampaignInfo = SERVER_URL + "/cm/info?link_id=" + linkId+ "&cm_id=" + getCampaignId();
-        String responseForCampaignInfo = getResponseFromAPI(urlForCampaignInfo);
-        CampaignInfoModel campaignInfoObj = gson.fromJson(responseForCampaignInfo, CampaignInfoModel.class);
-        if (campaignInfoObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignInfoObj.getResultList().getCms().size() > 0) {
-            Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
-            campaignName.setText(campaign.getName());
-            campaignDescription.setText(campaign.getDescription());
-            actlComStart.setValue(campaign.getActual_Communication_Start_Dt() != null ? LocalDate.parse(campaign.getActual_Communication_Start_Dt()) : localDate);
-            actlComEnd.setValue(campaign.getActual_Communication_End_Dt() != null ? LocalDate.parse(campaign.getActual_Communication_End_Dt()) : localDate);
-            planComStart.setValue(campaign.getPlanned_Communication_Start_Dt() != null ? LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()) : localDate);
-            planComEnd.setValue(campaign.getPlanned_Communication_End_Dt() != null ? LocalDate.parse(campaign.getPlanned_Communication_End_Dt()) : localDate);
-            resendNumberDay.setText(campaign.getDeduplication_Days_Num() != null ? campaign.getDeduplication_Days_Num() : "0");
-        } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(urlForCampaignInfo);
-        } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, campaignInfoObj.getResultinfo().getErrString(), urlForCampaignInfo);
-        }
+
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForCampaignInfo);
+            }
+        };
+        loadingStage.show();
+
+        newTask.setOnSucceeded(response -> {
+            String responseForCampaignInfo = (String) response.getSource().getValue();
+            CampaignInfoModel campaignInfoObj = gson.fromJson(responseForCampaignInfo, CampaignInfoModel.class);
+            if (campaignInfoObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignInfoObj.getResultList().getCms().size() > 0) {
+                Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
+                campaignName.setText(campaign.getName());
+                campaignDescription.setText(campaign.getDescription());
+                actlComStart.setValue(!StringUtils.isEmpty(campaign.getActual_Communication_Start_Dt()) ? LocalDate.parse(campaign.getActual_Communication_Start_Dt()) : localDate);
+                actlComEnd.setValue(!StringUtils.isEmpty(campaign.getActual_Communication_End_Dt()) ? LocalDate.parse(campaign.getActual_Communication_End_Dt()) : localDate);
+                planComStart.setValue(!StringUtils.isEmpty(campaign.getPlanned_Communication_Start_Dt()) ? LocalDate.parse(campaign.getPlanned_Communication_Start_Dt()) : localDate);
+                planComEnd.setValue(!StringUtils.isEmpty(campaign.getPlanned_Communication_End_Dt()) ? LocalDate.parse(campaign.getPlanned_Communication_End_Dt()) : localDate);
+                resendNumberDay.setText(!StringUtils.isEmpty(campaign.getDeduplication_Days_Num()) ? campaign.getDeduplication_Days_Num() : "0");
+                loadChannelList(campaign.getChannel_INSTANCE_ID());
+            } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
+                logoutByExpireSession(urlForCampaignInfo);
+            } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+                createNotificationDialog(ERROR_HEADER, campaignInfoObj.getResultinfo().getErrString(), urlForCampaignInfo);
+            }
+            loadingStage.hide();
+        });
+
+        new Thread(newTask).start();
     }
 
-    private void loadFrequencyList() throws IOException, ParseException {
+    private void loadFrequencyList() {
         String urlForFrequencyList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=2";
-        String response = getResponseFromAPI(urlForFrequencyList);
-        StatusListModel statusListObj = gson.fromJson(response,  StatusListModel.class);
-        if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && statusListObj.getCdList().getCds().size() > 0) {
-            ObservableList<ControlBindingObj> statusList = FXCollections.observableArrayList();
-            statusListObj.getCdList().getCds().forEach(index -> statusList.add(new ControlBindingObj(index.getName(), index.getCd())));
-            frequencyComboBox.setItems(statusList);
-            loadFrequencyDetail();
-        } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(urlForFrequencyList);
-        } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && statusListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForFrequencyList);
-        }
+
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForFrequencyList);
+            }
+        };
+        loadingStage.show();
+
+        newTask.setOnSucceeded(response -> {
+            String responseForFrequencyList = (String) response.getSource().getValue();
+            StatusListModel statusListObj = gson.fromJson(responseForFrequencyList,  StatusListModel.class);
+            if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && statusListObj.getCdList().getCds().size() > 0) {
+                ObservableList<ControlBindingObj> statusList = FXCollections.observableArrayList();
+                statusListObj.getCdList().getCds().forEach(index -> statusList.add(new ControlBindingObj(index.getName(), index.getCd())));
+                frequencyComboBox.setItems(statusList);
+                weeklyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Weekly")).findAny().orElse(null)));
+                monthlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Monthly")).findAny().orElse(null)));
+                yearlyOptionList.visibleProperty().bind(frequencyComboBox.valueProperty().isEqualTo(frequencyComboBox.getItems().stream().filter(index -> index.getName().equals("Yearly")).findAny().orElse(null)));
+
+            } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
+                logoutByExpireSession(urlForFrequencyList);
+            } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && statusListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+                createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForFrequencyList);
+            }
+            loadingStage.hide();
+        });
+
+        new Thread(newTask).start();
     }
 
-    private void loadFrequencyDetail() throws IOException, ParseException {
-        String urlForFrequencyDetail = SERVER_URL + "/sch/info/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
-        String response = getResponseFromAPI(urlForFrequencyDetail);
-        CampaignScheduleModel campaignScheduleObj = gson.fromJson(response, CampaignScheduleModel.class);
-        if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() > 0) {
-            String selectedFrequencyType = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0).getSchedule_type_cd();
-            ControlBindingObj selectedFrequency = frequencyComboBox.getItems()
-                    .stream().filter(index -> index.getId().equals(selectedFrequencyType))
-                    .findAny()
-                    .orElse(null);
-            frequencyComboBox.getSelectionModel().select(selectedFrequency);
-            // Bind data to field list
-            SchInfos scheduleDetail = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0);
-            if (!scheduleDetail.getSchedule_start_dttm_ftm().isEmpty()) {
-                Date freqStartDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_start_dttm_ftm());
-                freqStart.setValue(freqStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+    private void loadChannelList(String channelId) {
+        String urlForChannelList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=3";
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForChannelList);
             }
-            if (!scheduleDetail.getSchedule_end_dttm_ftm().equals(NO_END_DATE)) {
-                endDateRadio.setSelected(true);
-                Date freqEndDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_end_dttm_ftm());
-                freqEnd.setValue(freqEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-            } else {
-                noEndDateRadio.setSelected(true);
-            }
+        };
+        loadingStage.show();
 
-            switch (scheduleDetail.getSchedule_type_cd()){
-                case "2":
-                    bindDateForWeeklyFrequency(scheduleDetail);
-                    break;
-                case "3":
-                    bindDateForMonthlyFrequency(scheduleDetail);
-                    break;
-                case "4":
-                    bindDateForYearlyFrequency(scheduleDetail);
-                    break;
+        newTask.setOnSucceeded(response -> {
+            String responseForChannelList = (String) response.getSource().getValue();
+            StatusListModel statusListObj = gson.fromJson(responseForChannelList, StatusListModel.class);
+            if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+                ObservableList<ControlBindingObj> channelList = FXCollections.observableArrayList();
+                statusListObj.getCdList().getCds().forEach(index -> channelList.add(new ControlBindingObj(index.getName(), index.getCd())));
+                channelListComboBox.setItems(channelList);
+                if (!StringUtils.isEmpty(channelId)) {
+                    ControlBindingObj selectedChannel = channelListComboBox.getItems().stream().filter(index -> index.getId().equals(channelId)).findAny().orElse(null);
+                    if (selectedChannel != null) {
+                        channelListComboBox.getSelectionModel().select(selectedChannel);
+                    } else {
+                        channelListComboBox.getSelectionModel().selectFirst();
+                    }
+                } else {
+                    channelListComboBox.getSelectionModel().selectFirst();
+                }
+            } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
+                logoutByExpireSession(urlForChannelList);
+
             }
-        } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() == 0) {
-            frequencyComboBox.getSelectionModel().selectFirst();
-            freqStart.setValue(localDate);
-            endDateRadio.setSelected(true);
-            freqEnd.setValue(localDate);
-        } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(urlForFrequencyDetail);
-        } else if (campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, campaignScheduleObj.getResultinfo().getErrString(), urlForFrequencyDetail);
-        }
+            loadingStage.hide();
+        });
+        new Thread(newTask).start();
+    }
+    private void loadFrequencyDetail() {
+        String urlForFrequencyDetail = SERVER_URL + "/sch/info/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
+
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForFrequencyDetail);
+            }
+        };
+        loadingStage.show();
+
+        newTask.setOnSucceeded(response -> {
+            String responseForFrequencyDetail = (String) response.getSource().getValue();
+            CampaignScheduleModel campaignScheduleObj = gson.fromJson(responseForFrequencyDetail, CampaignScheduleModel.class);
+            if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() > 0) {
+                String selectedFrequencyType = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0).getSchedule_type_cd();
+                ControlBindingObj selectedFrequency = frequencyComboBox.getItems()
+                        .stream().filter(index -> index.getId().equals(selectedFrequencyType))
+                        .findAny()
+                        .orElse(null);
+                frequencyComboBox.getSelectionModel().select(selectedFrequency);
+                // Bind data to field list
+                SchInfos scheduleDetail = campaignScheduleObj.getSchInfoList().getSchInfoList().get(0);
+                if (!scheduleDetail.getSchedule_start_dttm_ftm().isEmpty()) {
+                    Date freqStartDate = null;
+                    try {
+                        freqStartDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_start_dttm_ftm());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    freqStart.setValue(freqStartDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                }
+                if (!scheduleDetail.getSchedule_end_dttm_ftm().equals(NO_END_DATE)) {
+                    endDateRadio.setSelected(true);
+                    Date freqEndDate = null;
+                    try {
+                        freqEndDate = new SimpleDateFormat("yyyyMMdd", Locale.ENGLISH).parse(scheduleDetail.getSchedule_end_dttm_ftm());
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    freqEnd.setValue(freqEndDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                } else {
+                    noEndDateRadio.setSelected(true);
+                    freqEnd.setValue(localDate);
+                }
+
+                switch (scheduleDetail.getSchedule_type_cd()){
+                    case "2":
+                        bindDateForWeeklyFrequency(scheduleDetail);
+                        break;
+                    case "3":
+                        bindDateForMonthlyFrequency(scheduleDetail);
+                        break;
+                    case "4":
+                        bindDateForYearlyFrequency(scheduleDetail);
+                        break;
+                }
+            } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignScheduleObj.getSchInfoList().getSchInfoList().size() == 0) {
+                frequencyComboBox.getSelectionModel().selectFirst();
+                freqStart.setValue(localDate);
+                endDateRadio.setSelected(true);
+                freqEnd.setValue(localDate);
+            } else if (campaignScheduleObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
+                logoutByExpireSession(urlForFrequencyDetail);
+            } else if (campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignScheduleObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+                createNotificationDialog(ERROR_HEADER, campaignScheduleObj.getResultinfo().getErrString(), urlForFrequencyDetail);
+            }
+            loadingStage.hide();
+        });
+
+        new Thread(newTask).start();
+
     }
 
     private void bindDateForWeeklyFrequency(SchInfos schedule) {
@@ -563,45 +670,89 @@ public class CommunicationManagerController extends Main {
         }
     }
 
-    private void loadDatabaseList() throws IOException {
+    private void loadDatabaseList() {
         String urlForLoadDatabaseList = SERVER_URL + "/dbs/list/dbname?link_id=" + linkId;
-        String responseForDatabaseList = getResponseFromAPI(urlForLoadDatabaseList);
-        DatabaseListModel databaseListObj = gson.fromJson(responseForDatabaseList, DatabaseListModel.class);
-        if (databaseListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && databaseListObj.getResultListTable().getDbNames().size() > 0) {
-            ObservableList<String> databaseList = FXCollections.observableArrayList();
-            databaseListObj.getResultListTable().getDbNames().forEach(index -> databaseList.add(index.getDbname()));
-            databaseListComboBox.setItems(databaseList);
-            String urlForSelectedDatabase = SERVER_URL + "/dbs/list/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
-            String responseForSelectedDatabase = getResponseFromAPI(urlForSelectedDatabase);
-            SelectedDatabaseModel selectedDatabaseObj = gson.fromJson(responseForSelectedDatabase, SelectedDatabaseModel.class);
-            String selectedDbName = selectedDatabaseObj.getDatasources().getDatasource().get(0).getDatabase_name_txt();
-            String selectedTableName = selectedDatabaseObj.getDatasources().getDatasource().get(0).getTable_name_txt();
-            databaseListComboBox.getSelectionModel().select(selectedDbName);
-            loadViewListByDatabaseName(selectedDbName, selectedTableName);
-        } else if (databaseListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-            logoutByExpireSession(urlForLoadDatabaseList);
-        } else if (databaseListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && databaseListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, databaseListObj.getResultinfo().getErrString(), urlForLoadDatabaseList);
-        }
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForLoadDatabaseList);
+            }
+        };
+        loadingStage.show();
+        newTask.setOnSucceeded(response -> {
+            String responseForDatabaseList = (String) response.getSource().getValue();
+            DatabaseListModel databaseListObj = gson.fromJson(responseForDatabaseList, DatabaseListModel.class);
+            if (databaseListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && databaseListObj.getResultListTable().getDbNames().size() > 0) {
+                ObservableList<String> databaseList = FXCollections.observableArrayList();
+                databaseListObj.getResultListTable().getDbNames().forEach(index -> databaseList.add(index.getDbname()));
+                databaseListComboBox.setItems(databaseList);
+                loadSelectedDatabaseAndView();
+
+            } else if (databaseListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
+                logoutByExpireSession(urlForLoadDatabaseList);
+            } else if (databaseListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && databaseListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+                createNotificationDialog(ERROR_HEADER, databaseListObj.getResultinfo().getErrString(), urlForLoadDatabaseList);
+            }
+            loadingStage.hide();
+        });
+        new Thread(newTask).start();
     }
 
-    private void loadViewListByDatabaseName(String databaseName, String tableName) throws IOException {
-        String urlForViewList = SERVER_URL + "/dbs/list/view?link_id=" + linkId + "&dbname=" + databaseName;
-        String responseForViewList = getResponseFromAPI(urlForViewList);
-        ViewListModel viewListObj = gson.fromJson(responseForViewList, ViewListModel.class);
-        if (viewListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && viewListObj.getResultList().getSetViews().size() > 0) {
-            ObservableList<String> viewList = FXCollections.observableArrayList();
-            viewListObj.getResultList().getSetViews().forEach(index -> viewList.add(index.getTableName()));
-            viewListComboBox.setItems(viewList);
-            if (tableName == null) {
-                viewListComboBox.getSelectionModel().select(0);
-            } else {
-                viewListComboBox.getSelectionModel().select(tableName);
+    private void loadSelectedDatabaseAndView() {
+        String urlForSelectedDatabase = SERVER_URL + "/dbs/list/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForSelectedDatabase);
             }
-        } else if(viewListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
-            logoutByExpireSession(urlForViewList);
-        } else if (viewListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && viewListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
-            createNotificationDialog(ERROR_HEADER, viewListObj.getResultinfo().getErrString(), urlForViewList);
-        }
+        };
+
+        loadingStage.show();
+        newTask.setOnSucceeded(response -> {
+            String responseForSelectedDatabase = (String) response.getSource().getValue();
+                    SelectedDatabaseModel selectedDatabaseObj = gson.fromJson(responseForSelectedDatabase, SelectedDatabaseModel.class);
+            if (selectedDatabaseObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && selectedDatabaseObj.getDatasources().getDatasource().size() > 0) {
+                String selectedDbName = selectedDatabaseObj.getDatasources().getDatasource().get(0).getDatabase_name_txt();
+                String selectedTableName = selectedDatabaseObj.getDatasources().getDatasource().get(0).getTable_name_txt();
+                databaseListComboBox.getSelectionModel().select(selectedDbName);
+                loadViewListByDatabaseName(selectedDbName, selectedTableName);
+            } else {
+                databaseListComboBox.getSelectionModel().selectFirst();
+                loadViewListByDatabaseName(databaseListComboBox.getSelectionModel().getSelectedItem(), null);
+            }
+            loadingStage.hide();
+        });
+        new Thread(newTask).start();
+    }
+
+    private void loadViewListByDatabaseName(String databaseName, String tableName) {
+        String urlForViewList = SERVER_URL + "/dbs/list/view?link_id=" + linkId + "&dbname=" + databaseName;
+        Task<String> newTask = new Task<String>() {
+            @Override
+            public String call() {
+                return getResponseFromAPI(urlForViewList);
+            }
+        };
+        loadingStage.show();
+        newTask.setOnSucceeded(response -> {
+            String responseForViewList = (String) response.getSource().getValue();
+            ViewListModel viewListObj = gson.fromJson(responseForViewList, ViewListModel.class);
+            if (viewListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && viewListObj.getResultList().getSetViews().size() > 0) {
+                ObservableList<String> viewList = FXCollections.observableArrayList();
+                viewListObj.getResultList().getSetViews().forEach(index -> viewList.add(index.getTableName()));
+                viewListComboBox.setItems(viewList);
+                if (tableName == null) {
+                    viewListComboBox.getSelectionModel().select(0);
+                } else {
+                    viewListComboBox.getSelectionModel().select(tableName);
+                }
+            } else if(viewListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
+                logoutByExpireSession(urlForViewList);
+            } else if (viewListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && viewListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
+                createNotificationDialog(ERROR_HEADER, viewListObj.getResultinfo().getErrString(), urlForViewList);
+            }
+            loadingStage.hide();
+        });
+        new Thread(newTask).start();
     }
 }

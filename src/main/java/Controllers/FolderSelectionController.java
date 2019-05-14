@@ -86,11 +86,7 @@ public class FolderSelectionController extends Main {
                     currentStage.close();
                     break;
                 case API_CODE_LOGOUT:
-                    try {
-                        logoutByExpireSession(finalUrlForDuplicateCampaign);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+                    logoutByExpireSession(finalUrlForDuplicateCampaign);
                     break;
                 default:
                     createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), finalUrlForDuplicateCampaign);

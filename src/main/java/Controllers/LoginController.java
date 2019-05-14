@@ -1,10 +1,14 @@
 package main.java.Controllers;
 
 import javafx.concurrent.Task;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Region;
@@ -13,10 +17,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.LoginModel;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;

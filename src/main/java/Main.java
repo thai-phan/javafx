@@ -130,9 +130,13 @@ public class Main extends Application {
 
     public static Gson gson = new Gson();
 
-    protected void logoutByExpireSession(String url) throws IOException {
+    protected void logoutByExpireSession(String url) {
         createNotificationDialog(Main.SESSION_EXPIRE_HEADER, Main.SESSION_EXPIRE_CONTENT, url);
-        logout();
+        try {
+            logout();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     protected void logout() throws IOException {
@@ -215,6 +219,7 @@ public class Main extends Application {
 
     protected String getResponseFromAPI(String url) {
         try {
+//            lg(url);
             BufferedReader in;
             if (url.matches("^https://.+")) {
                 // Create a trust manager that does not validate certificate chains

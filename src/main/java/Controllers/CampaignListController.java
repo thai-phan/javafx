@@ -101,68 +101,36 @@ public class CampaignListController extends Main
     public void initialize() {
         folderNamePattern = Pattern.compile(PATTERN_FOLDER_NAME);
         configurationView();
-        try {
-            loadDataFromAPI();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadDataFromAPI();
         addListener();
     }
 
     @FXML
-    private void editCampaign() {
+    private void editCampaign() throws IOException {
         searchedText = campaignSearch.getText();
         selectedStatus = statusListComboBox.getSelectionModel().getSelectedItem();
-        Task<Region> newTask = new Task<Region>() {
-            @Override
-            public Region call() throws IOException {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
-                Region root = loader.load();
-                CommunicationManagerController communicationManagerController = loader.getController();
-                CmDatas campaignSelected = campaignTableView.getSelectionModel().getSelectedItem();
-                communicationManagerController.setCampaignId(campaignSelected.getEntity_Id());
-                communicationManagerController.isView = false;
-                communicationManagerController.initialize();
-                return root;
-            }
-        };
-        if (!loadingStage.isShowing()) {
-            loadingStage.show();
-        }
-        newTask.setOnSucceeded(event -> {
-            Region root = (Region) event.getSource().getValue();
-            scene.setRoot(root);
-            loadingStage.hide();
-        });
-        new Thread(newTask).start();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
+        Region root = loader.load();
+        CommunicationManagerController communicationManagerController = loader.getController();
+        CmDatas campaignSelected = campaignTableView.getSelectionModel().getSelectedItem();
+        communicationManagerController.setCampaignId(campaignSelected.getEntity_Id());
+        communicationManagerController.isView = false;
+        communicationManagerController.initialize();
+        scene.setRoot(root);
     }
 
     @FXML
-    public void onViewCampaign() {
+    public void onViewCampaign() throws IOException {
         searchedText = campaignSearch.getText();
         selectedStatus = statusListComboBox.getSelectionModel().getSelectedItem();
-        Task<Region> newTask = new Task<Region>() {
-            @Override
-            public Region call() throws IOException {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
-                Region root = loader.load();
-                CommunicationManagerController communicationManagerController = loader.getController();
-                CmDatas campaignSelected = campaignTableView.getSelectionModel().getSelectedItem();
-                communicationManagerController.setCampaignId(campaignSelected.getEntity_Id());
-                communicationManagerController.isView = true;
-                communicationManagerController.initialize();
-                return root;
-            }
-        };
-        if (!loadingStage.isShowing()) {
-            loadingStage.show();
-        }
-        newTask.setOnSucceeded(event -> {
-            Region root = (Region) event.getSource().getValue();
-            scene.setRoot(root);
-            loadingStage.hide();
-        });
-        new Thread(newTask).start();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(COMMUNICATION_MANAGER_FXML));
+        Region root = loader.load();
+        CommunicationManagerController communicationManagerController = loader.getController();
+        CmDatas campaignSelected = campaignTableView.getSelectionModel().getSelectedItem();
+        communicationManagerController.setCampaignId(campaignSelected.getEntity_Id());
+        communicationManagerController.isView = true;
+        communicationManagerController.initialize();
+        scene.setRoot(root);
     }
 
     @FXML
@@ -187,7 +155,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    private void showAddFolderDialog() throws IOException {
+    private void showAddFolderDialog() {
         TextInputDialog dialog = new TextInputDialog();
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStylesheets().add(
@@ -208,7 +176,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    public void showRenameFolderDialog() throws IOException {
+    public void showRenameFolderDialog() {
         ControlBindingObj folderChanging = folderTree.getSelectionModel().getSelectedItems().get(0).getValue();
         TextInputDialog dialog = new TextInputDialog(folderChanging.getName());
         DialogPane dialogPane = dialog.getDialogPane();
@@ -257,7 +225,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    public void onActiveCamp() throws IOException {
+    public void onActiveCamp() {
         Alert alert = createAlert("Confirm to Active Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
@@ -266,7 +234,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    public void onDeactiveCamp() throws IOException {
+    public void onDeactiveCamp() {
         Alert alert = createAlert("Confirm to Deactivate Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
@@ -275,7 +243,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    public void onSubmitCamp() throws IOException {
+    public void onSubmitCamp() {
         Alert alert = createAlert("Confirm to Submit Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
@@ -284,7 +252,7 @@ public class CampaignListController extends Main
     }
 
     @FXML
-    public void onRejectCamp() throws IOException {
+    public void onRejectCamp() {
         Alert alert = createAlert("Confirm to Reject Campaign");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
@@ -308,7 +276,7 @@ public class CampaignListController extends Main
 
     }
 
-    private void loadDataFromAPI() throws IOException {
+    private void loadDataFromAPI() {
         loadStatusList();
         loadMasterFolderList();
     }
@@ -343,13 +311,9 @@ public class CampaignListController extends Main
 
     private void addListener() {
         masterFolderComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
+            if (oldVal != null) {
                 selectedMasterFolder = newVal;
-                try {
-                    loadSubFolderListOnTree(false);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                loadSubFolderListOnTree(false);
             }
         });
         folderTree.setOnMouseClicked(event -> {
@@ -383,9 +347,7 @@ public class CampaignListController extends Main
                 return getResponseFromAPI(urlForMasterFolder);
             }
         };
-        if (!loadingStage.isShowing()) {
-            loadingStage.show();
-        }
+        loadingStage.show();
         newTask.setOnSucceeded(response -> {
             MasterFolderModel masterFolderObj = gson.fromJson((String) response.getSource().getValue(), MasterFolderModel.class);
             if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && masterFolderObj.getCmFolderList().getCmFolderData().size() > 0) {
@@ -399,12 +361,9 @@ public class CampaignListController extends Main
                     masterFolderComboBox.getSelectionModel().selectFirst();
                     selectedMasterFolder = masterFolderComboBox.getSelectionModel().getSelectedItem();
                 }
+                loadSubFolderListOnTree(false);
             } else if (masterFolderObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(urlForMasterFolder);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logoutByExpireSession(urlForMasterFolder);
             } else if (masterFolderObj.getResultinfo().getErrCd() != API_CODE_SUCCESS){
                 createNotificationDialog(ERROR_HEADER, masterFolderObj.getResultinfo().getErrString(), urlForMasterFolder);
             }
@@ -417,13 +376,11 @@ public class CampaignListController extends Main
     private void loadSubFolderListOnTree(Boolean newFolder) {
         Task<TreeItem<ControlBindingObj>> newTask = new Task<TreeItem<ControlBindingObj>>() {
             @Override
-            public TreeItem<ControlBindingObj> call() throws IOException {
+            public TreeItem<ControlBindingObj> call() {
                 return loadFolderTreeItem(selectedMasterFolder);
             }
         };
-        if (!loadingStage.isShowing()) {
-            loadingStage.show();
-        }
+        loadingStage.show();
         newTask.setOnSucceeded(response -> {
             TreeItem<ControlBindingObj> item = (TreeItem<ControlBindingObj>) response.getSource().getValue();
             folderTree.setRoot(item);
@@ -477,9 +434,7 @@ public class CampaignListController extends Main
                 return getResponseFromAPI(finalUrlForCampaignList);
             }
         };
-        if (!loadingStage.isShowing()) {
-            loadingStage.show();
-        }
+        loadingStage.show();
         newTask.setOnSucceeded(event -> {
             String responseForCampList = (String) event.getSource().getValue();
             CampaignListModel campListObj = gson.fromJson(responseForCampList, CampaignListModel.class);
@@ -509,23 +464,16 @@ public class CampaignListController extends Main
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() == 0) {
                 createNotificationDialog("Campaign list empty", null, null);
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(finalUrlForCampaignList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logoutByExpireSession(finalUrlForCampaignList);
             } else if (campListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS){
                 createNotificationDialog(ERROR_HEADER, campListObj.getResultinfo().getErrString(), finalUrlForCampaignList);
             }
             loadingStage.hide();
-
         });
         new Thread(newTask).start();
-
-
     }
 
-    private void addFolder(String folderName) throws IOException {
+    private void addFolder(String folderName) {
         String urlForAddFolder = null;
         try {
             urlForAddFolder = SERVER_URL + "/cm/ins/folder?link_id=" + linkId +
@@ -540,7 +488,7 @@ public class CampaignListController extends Main
         afterFolderAction(resultinfo, urlForAddFolder);
     }
 
-    private void renameFolder(String newName, String folderId) throws IOException {
+    private void renameFolder(String newName, String folderId) {
         String urlForRenameFolder = null;
         try {
             urlForRenameFolder = SERVER_URL + "/cm/update/folder_name?link_id=" + linkId + "&folderid=" + folderId + "&name=" + URLEncoder.encode(newName, "UTF-8");
@@ -554,7 +502,7 @@ public class CampaignListController extends Main
         afterFolderAction(resultinfo, urlForRenameFolder);
     }
 
-    private void afterFolderAction(Resultinfo resultinfo, String url) throws IOException {
+    private void afterFolderAction(Resultinfo resultinfo, String url) {
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
             createNotificationDialog(SUCCESS_HEADER, null, url);
             loadSubFolderListOnTree(true);
@@ -575,7 +523,6 @@ public class CampaignListController extends Main
         };
         loadingStage.show();
         newTask.setOnSucceeded(response -> {
-            loadingStage.hide();
             StatusListModel statusListObj = gson.fromJson((String) response.getSource().getValue(),  StatusListModel.class);
             if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && statusListObj.getCdList().getCds().size() > 0) {
                 ObservableList<ControlBindingObj> statusList = FXCollections.observableArrayList();
@@ -587,19 +534,16 @@ public class CampaignListController extends Main
                     statusListComboBox.getSelectionModel().selectFirst();
                 }
             } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(urlForStatusList);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logoutByExpireSession(urlForStatusList);
             } else if (statusListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS){
                 createNotificationDialog(ERROR_HEADER, statusListObj.getResultinfo().getErrString(), urlForStatusList);
             }
+            loadingStage.hide();
         });
         new Thread(newTask).start();
     }
 
-    private void changeCampaignStatus(String status) throws IOException {
+    private void changeCampaignStatus(String status) {
         String campaignId = selectedCampaign.getEntity_Id();
         String urlForChangeStatus = SERVER_URL + "/cm/change/status?link_id=" + linkId + "&cm_id=" + campaignId + "&statuscd=" + status;
         Task<String> newTask = new Task<String>() {
@@ -612,20 +556,16 @@ public class CampaignListController extends Main
         loadingStage.show();
 
         newTask.setOnSucceeded(response -> {
-            loadingStage.hide();
             Resultinfo resultinfo = gson.fromJson((String) response.getSource().getValue(), Resultinfo.class);
             if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
                 createNotificationDialog(SUCCESS_HEADER, null, null);
                 loadCampaignTable();
             } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(urlForChangeStatus);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logoutByExpireSession(urlForChangeStatus);
             } else {
                 createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForChangeStatus);
             }
+            loadingStage.hide();
         });
         new Thread(newTask).start();
     }

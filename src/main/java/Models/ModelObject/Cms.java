@@ -66,6 +66,15 @@ public class Cms {
     private String activate_User;
     private String activate_Dttm;
     private String apply_Contact_Rules_Ind;
+    private String channel_INSTANCE_ID;
+
+    public void setChannel_INSTANCE_ID(String channel_INSTANCE_ID) {
+        this.channel_INSTANCE_ID = channel_INSTANCE_ID;
+    }
+
+    public String getChannel_INSTANCE_ID() {
+        return channel_INSTANCE_ID;
+    }
 
     public void setName(String name) {
         this.name = name;

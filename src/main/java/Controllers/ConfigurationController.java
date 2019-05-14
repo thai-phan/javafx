@@ -73,7 +73,6 @@ public class ConfigurationController extends Main {
         String server = serverField.getText().replaceAll("\\s", "");
         String port = portField.getText().replaceAll("\\s", "");
         if (!server.matches("^\\S+$")) {
-            lg(server);
             createNotificationDialog(ALERT_HEADER, "Server value invalid", null);
         } else if (!port.matches("^\\d*$")) {
             createNotificationDialog(ALERT_HEADER, "Port value is number", null);

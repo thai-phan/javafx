@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.ModelObject.Resultinfo;
 
-import java.io.IOException;
 import java.time.ZoneId;
 import java.util.Date;
 
@@ -29,7 +28,7 @@ public class ScheduleDateController extends Main {
     }
 
     @FXML
-    public void onSaveScheduleDate() throws IOException {
+    public void onSaveScheduleDate() {
         String scheduleDateValue = scheduleDate.getValue().toString().replace("-", "");
         String urlForRunSchedule = SERVER_URL + "/sch/run_link?link_id=" + linkId + "&date=" + scheduleDateValue + "&cm_id=" + campaignId;
         Task<String> newTask = new Task<String>() {
@@ -40,7 +39,6 @@ public class ScheduleDateController extends Main {
         };
         loadingStage.show();
         newTask.setOnSucceeded(response -> {
-            loadingStage.hide();
             Resultinfo resultinfo = gson.fromJson((String) response.getSource().getValue(), Resultinfo.class);
             Stage currentStage = (Stage) scheduleDate.getScene().getWindow();
             if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
@@ -48,15 +46,12 @@ public class ScheduleDateController extends Main {
                 currentStage.close();
                 campaignListController.loadCampaignTable();
             } else if (resultinfo.getErrCd() == API_CODE_LOGOUT) {
-                try {
-                    logoutByExpireSession(urlForRunSchedule);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                logoutByExpireSession(urlForRunSchedule);
             } else {
                 createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForRunSchedule);
                 currentStage.close();
             }
+            loadingStage.hide();
         });
         new Thread(newTask).start();
     }

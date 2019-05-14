@@ -9,8 +9,6 @@ import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.ModelObject.Resultinfo;
 
-import java.io.IOException;
-
 
 public class Password extends Main {
     @FXML
@@ -71,11 +69,7 @@ public class Password extends Main {
                         currentWindow.close();
                         break;
                     case API_CODE_LOGOUT:
-                        try {
-                            logoutByExpireSession(urlForSaveNewPassword);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        logoutByExpireSession(urlForSaveNewPassword);
                         break;
                     default:
                         createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForSaveNewPassword);
