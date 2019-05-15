@@ -5,6 +5,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.DatePicker;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.ModelObject.Resultinfo;
@@ -13,8 +14,11 @@ import java.time.ZoneId;
 import java.util.Date;
 
 public class ScheduleDateController extends Main {
+//    @FXML
+//    private DatePicker scheduleDate;
+
     @FXML
-    private DatePicker scheduleDate;
+    private Text isRunQuestion;
 
     private String campaignId;
     private CampaignListController campaignListController;
@@ -29,7 +33,8 @@ public class ScheduleDateController extends Main {
 
     @FXML
     public void onSaveScheduleDate() {
-        String scheduleDateValue = scheduleDate.getValue().toString().replace("-", "");
+//        String scheduleDateValue = scheduleDate.getValue().toString().replace("-", "");
+        String scheduleDateValue = "";
         String urlForRunSchedule = SERVER_URL + "/sch/run_link?link_id=" + linkId + "&date=" + scheduleDateValue + "&cm_id=" + campaignId;
         Task<String> newTask = new Task<String>() {
             @Override
@@ -40,7 +45,7 @@ public class ScheduleDateController extends Main {
         loadingStage.show();
         newTask.setOnSucceeded(response -> {
             Resultinfo resultinfo = gson.fromJson((String) response.getSource().getValue(), Resultinfo.class);
-            Stage currentStage = (Stage) scheduleDate.getScene().getWindow();
+            Stage currentStage = (Stage) isRunQuestion.getScene().getWindow();
             if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
                 createNotificationDialog(SUCCESS_HEADER, null, null);
                 currentStage.close();
@@ -57,8 +62,8 @@ public class ScheduleDateController extends Main {
     }
 
     public void initialize() {
-        changeDateTimeToKrTypeAndDisableEditor(scheduleDate);
-        scheduleDate.setValue((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+//        changeDateTimeToKrTypeAndDisableEditor(scheduleDate);
+//        scheduleDate.setValue((new Date()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
     }
 
     public void onCancelScheduleDate(ActionEvent actionEvent) {
