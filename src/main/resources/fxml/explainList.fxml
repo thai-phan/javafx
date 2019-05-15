@@ -10,7 +10,7 @@
 
 <BorderPane prefHeight="600.0" prefWidth="1200.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.ExplainListController">
     <stylesheets>
-        <URL value="@../css/main.css" />
+        <URL value="@/src/main/resources/css/main.css" />
     </stylesheets>
     <center>
       <TableView fx:id="explainTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">

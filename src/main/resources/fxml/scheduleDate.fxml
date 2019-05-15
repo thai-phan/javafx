@@ -10,7 +10,7 @@
 
 <BorderPane prefHeight="180.0" prefWidth="500.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.ScheduleDateController">
     <stylesheets>
-        <URL value="@../css/main.css" />
+        <URL value="@/src/main/resources/css/main.css" />
     </stylesheets>
     <center>
 <!--      <HBox alignment="CENTER_LEFT" prefHeight="183.0" BorderPane.alignment="CENTER">-->

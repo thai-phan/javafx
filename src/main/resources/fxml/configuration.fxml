@@ -12,7 +12,7 @@
 
 <BorderPane prefHeight="244.0" prefWidth="400.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.ConfigurationController">
     <stylesheets>
-        <URL value="@../css/main.css" />
+        <URL value="@/src/main/resources/css/main.css" />
     </stylesheets>
     <center>
         <VBox prefHeight="343.0" prefWidth="500.0" BorderPane.alignment="CENTER">
