@@ -3,7 +3,7 @@
   <dontWrapJar>false</dontWrapJar>
   <headerType>gui</headerType>
   <jar>D:\Sources\TRM_Client\out\artifacts\TRM_Client\TRM_Client.jar</jar>
-  <outfile>D:\Sources\TRM_Client\SCM_GM\SCM_GM.exe</outfile>
+  <outfile>D:\Sources\TRM_Client\SCM_GM\NCM.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>D:\Sources\TRM_Client\src\main\resources\images\logo.ico</icon>
+  <icon>D:\Sources\TRM_Client\src\main\resources\images\checklist.ico</icon>
   <classPath>
     <mainClass>main.java.Main</mainClass>
     <cp>gson-2.8.5.jar</cp>

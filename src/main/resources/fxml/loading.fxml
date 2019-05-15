@@ -10,7 +10,7 @@
       <HBox style="-fx-background-color: transparent;">
          <children>
              <ImageView>
-                 <Image url="/main/resources/images/animatedBiColorCircle.gif"></Image>
+                 <Image url="/src/main/resources/images/animatedBiColorCircle.gif"></Image>
              </ImageView>
          </children>
       </HBox>

@@ -1,5 +1,5 @@
 USERNAME=
 SERVER_URL=http\://192.168.1.81\:8180/rest
 TITLE=JavaFx
-ICON=/main/resource/images/icons8-java-96.png
+ICON=/src/main/resource/images/icons8-java-96.png
 

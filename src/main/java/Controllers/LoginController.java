@@ -125,7 +125,7 @@ public class LoginController extends Main {
         configurationController.setKeyBinding(scene);
         Stage newStage = new Stage();
         newStage.setScene(scene);
-        newStage.getIcons().add(new Image("/main/resources/images/configuration.png"));
+        newStage.getIcons().add(new Image("/src/main/resources/images/configuration.png"));
         newStage.setTitle("Configuration");
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();

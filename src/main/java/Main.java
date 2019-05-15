@@ -36,15 +36,15 @@ import java.util.Properties;
 public class Main extends Application {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 500;
-    protected static final String CAMPAIGN_LIST_FXML = "/main/resources/fxml/campaignList.fxml";
-    public static final String COMMUNICATION_MANAGER_FXML = "/main/resources/fxml/communicationManager.fxml";
-    private static final String LOGIN_FXML = "/main/resources/fxml/login.fxml";
-    protected static final String FOLDER_SELECTION = "/main/resources/fxml/folderSelection.fxml";
-    protected static final String EXPLAIN_LIST = "/main/resources/fxml/explainList.fxml";
-    protected static final String SCHEDULE_DATE = "/main/resources/fxml/scheduleDate.fxml";
-    private static final String LOADING = "/main/resources/fxml/loading.fxml";
-    protected static final String PASSWORD = "/main/resources/fxml/password.fxml";
-    protected static final String CONFIGURATION = "/main/resources/fxml/configuration.fxml";
+    protected static final String CAMPAIGN_LIST_FXML = "/src/main/resources/fxml/campaignList.fxml";
+    public static final String COMMUNICATION_MANAGER_FXML = "/src/main/resources/fxml/communicationManager.fxml";
+    private static final String LOGIN_FXML = "/src/main/resources/fxml/login.fxml";
+    protected static final String FOLDER_SELECTION = "/src/main/resources/fxml/folderSelection.fxml";
+    protected static final String EXPLAIN_LIST = "/src/main/resources/fxml/explainList.fxml";
+    protected static final String SCHEDULE_DATE = "/src/main/resources/fxml/scheduleDate.fxml";
+    private static final String LOADING = "/src/main/resources/fxml/loading.fxml";
+    protected static final String PASSWORD = "/src/main/resources/fxml/password.fxml";
+    protected static final String CONFIGURATION = "/src/main/resources/fxml/configuration.fxml";
 
 
     protected static final int API_CODE_SUCCESS = 0;
@@ -182,7 +182,7 @@ public class Main extends Application {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
-                getClass().getResource("/main/resources/css/main.css").toExternalForm());
+                getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
         dialogPane.getStyleClass().add("dialogFolder");
         alert.setTitle("Notification Dialog");
         alert.setHeaderText(header);
@@ -302,7 +302,7 @@ public class Main extends Application {
         alert.setContentText(null);
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
-                getClass().getResource("/main/resources/css/main.css").toExternalForm());
+                getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
         dialogPane.getStyleClass().add("dialogFolder");
         return alert;
     }

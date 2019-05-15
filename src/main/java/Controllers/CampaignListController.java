@@ -148,7 +148,7 @@ public class CampaignListController extends Main
         Region root = loader.load();
         Stage newStage = new Stage();
         newStage.setScene(new Scene(root));
-        newStage.getIcons().add(new Image("/main/resources/images/change-password.png"));
+        newStage.getIcons().add(new Image("/src/main/resources/images/change-password.png"));
         newStage.setTitle("Change password");
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
@@ -159,7 +159,7 @@ public class CampaignListController extends Main
         TextInputDialog dialog = new TextInputDialog();
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStylesheets().add(
-                getClass().getResource("/main/resources/css/main.css").toExternalForm());
+                getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
         dialogPane.getStyleClass().add("dialogFolder");
         dialog.setTitle("Add folder");
         dialog.setHeaderText("Enter new folder name");
@@ -181,7 +181,7 @@ public class CampaignListController extends Main
         TextInputDialog dialog = new TextInputDialog(folderChanging.getName());
         DialogPane dialogPane = dialog.getDialogPane();
         dialogPane.getStylesheets().add(
-                getClass().getResource("/main/resources/css/main.css").toExternalForm());
+                getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
         dialogPane.getStyleClass().add("dialogFolder");
         dialog.setTitle("Rename folder");
         dialog.setHeaderText("Enter new folder name");
@@ -209,7 +209,7 @@ public class CampaignListController extends Main
         folderSelectionController.setOldCampId(selectedCampaign.getEntity_Id());
         folderSelectionController.setCampaignListController(this);
         folderSelectionController.getSelectedCampNameAndDescription(selectedCampaign.getName(), selectedCampaign.getDescription());
-        newStage.getIcons().add(new Image("/main/resources/images/copy.png"));
+        newStage.getIcons().add(new Image("/src/main/resources/images/copy.png"));
         newStage.setTitle("Copy campaign");
         newStage.setScene(new Scene(root));
         newStage.initModality(Modality.APPLICATION_MODAL);
@@ -270,7 +270,7 @@ public class CampaignListController extends Main
         scheduleDateController.setCampaignListController(this);
         newStage.setScene(new Scene(root));
         newStage.setTitle("Schedule");
-        newStage.getIcons().add(new Image("/main/resources/images/schedule.png"));
+        newStage.getIcons().add(new Image("/src/main/resources/images/schedule.png"));
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
 
