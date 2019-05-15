@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>false</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>D:\Sources\TRM_Client\out\artifacts\TRM_Client\TRM_Client.jar</jar>
+  <outfile>D:\Sources\TRM_Client\SCM_GM\SCM_GM.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl></supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>D:\Sources\TRM_Client\src\main\resources\images\logo.ico</icon>
+  <classPath>
+    <mainClass>main.java.Main</mainClass>
+    <cp>gson-2.8.5.jar</cp>
+    <cp>log4j-1.2.17.jar</cp>
+  </classPath>
+  <jre>
+    <path>jre1.8.0_211</path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.8</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+</launch4jConfig>
