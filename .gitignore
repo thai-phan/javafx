@@ -1,7 +1,7 @@
 /target
 /.idea
 config.properties
-/bin/
+/bin
 /out
 .classpath
 .project
