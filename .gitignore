@@ -1,6 +1,5 @@
 /target
 /.idea
-config.properties
 /bin
 /out
 .classpath
