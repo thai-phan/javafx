@@ -136,11 +136,11 @@ public class CommunicationManagerController extends Main {
     private ControlBindingObj may = new ControlBindingObj("May", "5");
     private ControlBindingObj june = new ControlBindingObj("June", "6");
     private ControlBindingObj july = new ControlBindingObj("July", "7");
-    private ControlBindingObj august = new ControlBindingObj("August", "1");
-    private ControlBindingObj september = new ControlBindingObj("September", "2");
-    private ControlBindingObj october = new ControlBindingObj("October", "3");
-    private ControlBindingObj november = new ControlBindingObj("November", "4");
-    private ControlBindingObj december = new ControlBindingObj("December", "5");
+    private ControlBindingObj august = new ControlBindingObj("August", "8");
+    private ControlBindingObj september = new ControlBindingObj("September", "9");
+    private ControlBindingObj october = new ControlBindingObj("October", "10");
+    private ControlBindingObj november = new ControlBindingObj("November", "11");
+    private ControlBindingObj december = new ControlBindingObj("December", "12");
 
     boolean isView;
     private String campaignId;
@@ -181,7 +181,7 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
-    private void onSaveCampSchedule() throws IOException {
+    private void onSaveCampSchedule() {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
@@ -230,7 +230,6 @@ public class CommunicationManagerController extends Main {
                     } else {
                         createNotificationDialog("Select one day in week.", null, null);
                     }
-
                     break;
                 case "3":
                     if (monthlyDayRadio.isSelected()) {
@@ -247,7 +246,6 @@ public class CommunicationManagerController extends Main {
                                 break;
                         }
                         isUrlComplete = true;
-
                     } else if (monthlySpecificRadio.isSelected()) {
                         optionNumber = "2";
                         if (monthlyDateList.getText().matches(PATTERN_DAY_LIST)) {
@@ -284,7 +282,7 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
-    private void onSaveChannel() throws IOException {
+    private void onSaveChannel() {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
@@ -298,7 +296,7 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
-    private void onSaveCampDatabase() throws IOException {
+    private void onSaveCampDatabase() {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK) {
@@ -513,7 +511,6 @@ public class CommunicationManagerController extends Main {
                 }
             } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
                 logoutByExpireSession(urlForChannelList);
-
             }
             loadingStage.hide();
         });
@@ -612,25 +609,22 @@ public class CommunicationManagerController extends Main {
         switch (schedule.getOpt_num()) {
             case "1":
                 monthlyDayRadio.setSelected(true);
+                ControlBindingObj monthlyOrdinalObj = null;
+                ControlBindingObj monthlyDayObj = null;
                 if (schedule.getCron_Week().matches(PATTERN_ORDINAL_WEEK)){
                     String dayPos = schedule.getCron_Week().split("#")[0];
                     String ordinalPos = schedule.getCron_Week().split("#")[1];
-                    monthlyOrdinalCombo.getSelectionModel().select(
-                            monthlyOrdinalCombo.getItems().stream().filter(index -> index.getId().equals(ordinalPos)).findAny().orElse(null)
-                    );
-                    monthlyDayCombo.getSelectionModel().select(
-                            monthlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null)
-                    );
+                    monthlyOrdinalObj = monthlyOrdinalCombo.getItems().stream().filter(index -> index.getId().equals(ordinalPos)).findAny().orElse(null);
+                    monthlyDayObj = monthlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null);
                 } else if(schedule.getCron_Week().matches(PATTERN_LAST_OF_WEEK)){
                     String dayPos = schedule.getCron_Week().substring(0, 1);
-                    ControlBindingObj ordinalPos = new ControlBindingObj("Last", "5");
-                    monthlyOrdinalCombo.getSelectionModel().select(ordinalPos);
-                    monthlyDayCombo.getSelectionModel().select(
-                            monthlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null)
-                    );
+                    monthlyOrdinalObj = lastOrdinal;
+                    monthlyDayObj = monthlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null);
                 } else if(schedule.getCron_Dd().equals("L")){
-                    monthlyOrdinalCombo.getSelectionModel().selectLast();
+                    monthlyOrdinalCombo.getSelectionModel().select(lastDayOrdinal);
                 }
+                monthlyOrdinalCombo.getSelectionModel().select(monthlyOrdinalObj);
+                monthlyDayCombo.getSelectionModel().select(monthlyDayObj);
                 break;
             case "2":
                 monthlySpecificRadio.setSelected(true);
@@ -643,30 +637,24 @@ public class CommunicationManagerController extends Main {
     private void bindDateForYearlyFrequency(SchInfos schedule) {
         switch (schedule.getOpt_num()) {
             case "1":
+                ControlBindingObj ordinalPosObj = null;
+                ControlBindingObj yearlyDayObj = null;
                 if (schedule.getCron_Week().matches(PATTERN_ORDINAL_WEEK)){
                     String dayPos = schedule.getCron_Week().split("#")[0];
                     String ordinalPos = schedule.getCron_Week().split("#")[1];
-
-                    yearlyOrdinalCombo.getSelectionModel().select(
-                            yearlyOrdinalCombo.getItems().stream().filter(index -> index.getId().equals(ordinalPos)).findAny().orElse(null)
-                    );
-                    yearlyDayCombo.getSelectionModel().select(
-                            yearlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null)
-                    );
+                    ordinalPosObj = yearlyOrdinalCombo.getItems().stream().filter(index -> index.getId().equals(ordinalPos)).findAny().orElse(null);
+                    yearlyDayObj = yearlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null);
                 } else if(schedule.getCron_Week().matches(PATTERN_LAST_OF_WEEK)){
                     String dayPos = schedule.getCron_Week().substring(0, 1);
-                    ControlBindingObj ordinalPos = new ControlBindingObj("Last", "5");
-                    yearlyOrdinalCombo.getSelectionModel().select(ordinalPos);
-                    yearlyDayCombo.getSelectionModel().select(
-                            yearlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null)
-                    );
+                    ordinalPosObj = lastOrdinal;
+                    yearlyDayObj = yearlyDayCombo.getItems().stream().filter(index -> index.getId().equals(dayPos)).findAny().orElse(null);
                 }
+                yearlyOrdinalCombo.getSelectionModel().select(ordinalPosObj);
+                yearlyDayCombo.getSelectionModel().select(yearlyDayObj);
                 String monthPos = schedule.getCron_Mm();
-                yearlyMonthCombo.getSelectionModel().select(
-                        yearlyMonthCombo.getItems().stream().filter(index -> index.getId().equals(monthPos)).findAny().orElse(null)
-                );
+                ControlBindingObj yearlyMonthObj = yearlyMonthCombo.getItems().stream().filter(index -> index.getId().equals(monthPos)).findAny().orElse(null);
+                yearlyMonthCombo.getSelectionModel().select(yearlyMonthObj);
                 break;
-
         }
     }
 

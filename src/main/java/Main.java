@@ -37,7 +37,7 @@ public class Main extends Application {
     private static final int WIDTH = 500;
     private static final int HEIGHT = 500;
     protected static final String CAMPAIGN_LIST_FXML = "/src/main/resources/fxml/campaignList.fxml";
-    public static final String COMMUNICATION_MANAGER_FXML = "/src/main/resources/fxml/communicationManager.fxml";
+    protected static final String COMMUNICATION_MANAGER_FXML = "/src/main/resources/fxml/communicationManager.fxml";
     private static final String LOGIN_FXML = "/src/main/resources/fxml/login.fxml";
     protected static final String FOLDER_SELECTION = "/src/main/resources/fxml/folderSelection.fxml";
     protected static final String EXPLAIN_LIST = "/src/main/resources/fxml/explainList.fxml";
@@ -109,7 +109,7 @@ public class Main extends Application {
     public void stop() {
     }
 
-    protected void notificationForAction(Resultinfo resultinfo, String url) throws IOException {
+    protected void notificationForAction(Resultinfo resultinfo, String url) {
         if (resultinfo.getErrCd() == API_CODE_SUCCESS) {
             createNotificationDialog(SUCCESS_HEADER, null, url);
         } else if(resultinfo.getErrCd() == API_CODE_LOGOUT){
@@ -252,11 +252,13 @@ public class Main extends Application {
                 URL obj = new URL(url);
                 HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
                 con.setRequestMethod("GET");
+                con.setConnectTimeout(5000);
                 in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             } else {
                 URL obj = new URL(url);
                 HttpURLConnection con = (HttpURLConnection) obj.openConnection();
                 con.setRequestMethod("GET");
+                con.setConnectTimeout(5000);
                 in = new BufferedReader(new InputStreamReader(con.getInputStream(), StandardCharsets.UTF_8));
             }
 

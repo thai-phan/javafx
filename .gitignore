@@ -6,7 +6,7 @@
 .project
 .settings/org.eclipse.jdt.core.prefs
 /.svn
-/SCM_GM
+/shield
 /logs
 /Output
 /.settings

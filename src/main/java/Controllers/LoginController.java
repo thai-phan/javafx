@@ -17,6 +17,7 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.LoginModel;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -84,33 +85,35 @@ public class LoginController extends Main {
             loadingStage.show();
 
             newTask.setOnSucceeded(response -> {
-                loadingStage.close();
-                LoginModel loginModel = gson.fromJson((String) response.getSource().getValue(), LoginModel.class);
-                linkId = loginModel.getPersonalInfo().getLink_id();
-                if (loginModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
-                    stage.hide();
-                    logger.info("Login success");
-                    if (rememberMeCheckBox.isSelected()
-                            && !prop.getProperty("USERNAME").equals(currentUsername)) {
-                        FileOutputStream config = null;
+                String responseForLogin = (String) response.getSource().getValue();
+                if (!StringUtils.isEmpty(responseForLogin)) {
+                    LoginModel loginModel = gson.fromJson(responseForLogin, LoginModel.class);
+                    linkId = loginModel.getPersonalInfo().getLink_id();
+                    if (loginModel.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
+                        stage.hide();
+                        logger.info("Login success");
+                        if (rememberMeCheckBox.isSelected()
+                                && !prop.getProperty("USERNAME").equals(currentUsername)) {
+                            FileOutputStream config = null;
+                            try {
+                                config = new FileOutputStream("config.properties");
+                                prop.setProperty("USERNAME", currentUsername);
+                                prop.store(config,null);
+                                config.close();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
                         try {
-                            config = new FileOutputStream("config.properties");
-                            prop.setProperty("USERNAME", currentUsername);
-                            prop.store(config,null);
-                            config.close();
+                            changePageCampaignList();
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
+                    } else {
+                        createNotificationDialog(LOGIN_FAIL, null, null);
                     }
-                    try {
-                        changePageCampaignList();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    createNotificationDialog(LOGIN_FAIL, null, null);
                 }
-
+                loadingStage.close();
             });
             new Thread(newTask).start();
         }
