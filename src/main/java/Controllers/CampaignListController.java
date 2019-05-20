@@ -163,6 +163,9 @@ public class CampaignListController extends Main
         dialogPane.getStyleClass().add("dialogFolder");
         dialog.setTitle("Add folder");
         dialog.setHeaderText("Enter new folder name");
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(
+                new Image(this.getClass().getResource("/src/main/resources/images/add.png").toString()));
         Optional<String> result = dialog.showAndWait();
 
         if (result.isPresent()) {
@@ -185,6 +188,9 @@ public class CampaignListController extends Main
         dialogPane.getStyleClass().add("dialogFolder");
         dialog.setTitle("Rename folder");
         dialog.setHeaderText("Enter new folder name");
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(
+                new Image(this.getClass().getResource("/src/main/resources/images/rename.png").toString()));
         Optional<String> result = dialog.showAndWait();
 
         if (result.isPresent()) {
@@ -460,6 +466,7 @@ public class CampaignListController extends Main
                     campaignTableView.getSelectionModel().selectFirst();
                     selectedCampaign = campaignTableView.getSelectionModel().getSelectedItem();
                 }
+                campaignTableView.getSortOrder().add(campClName);
                 recordsNumber.setText(campListObj.getCmList().getCnt());
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() == 0) {
                 createNotificationDialog("Campaign list empty", null, null);

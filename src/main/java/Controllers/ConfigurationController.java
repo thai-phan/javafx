@@ -58,11 +58,15 @@ public class ConfigurationController extends Main {
         } else {
             protocolComboBox.getSelectionModel().selectFirst();
         }
-        Pattern urlPattern = Pattern.compile("^https?://(\\S+):(\\d+)/.+$");
-        Matcher matcher = urlPattern.matcher(serverUrl);
-        if (matcher.find()) {
-            serverField.setText(matcher.group(1));
-            portField.setText(matcher.group(2));
+        Pattern urlPatternWithPort = Pattern.compile("^https?://(\\S+):(\\d+)/.+$");
+        Pattern urlPatternWithoutPort = Pattern.compile("^https?://(\\w*+(\\.\\w+)*)(/\\S+)");
+        Matcher matcherPort = urlPatternWithPort.matcher(serverUrl);
+        Matcher matcherNoPort = urlPatternWithoutPort.matcher(serverUrl);
+        if (matcherPort.find()) {
+            serverField.setText(matcherPort.group(1));
+            portField.setText(matcherPort.group(2));
+        } else if(matcherNoPort.find()) {
+            serverField.setText(matcherNoPort.group(1));
         }
         config.close();
     }

@@ -174,12 +174,18 @@ public class Main extends Application {
     }
 
     protected void createNotificationDialog(String header, String content, String url) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
         if(header.equals(ERROR_HEADER)){
             String api = url != null ? url : "";
             logger.error("Error: " + content + "API: " + api);
+            stage.getIcons().add(
+                    new Image(this.getClass().getResource("/src/main/resources/images/error.png").toString()));
+        } else {
+            stage.getIcons().add(
+                    new Image(this.getClass().getResource("/src/main/resources/images/rename.png").toString()));
         }
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         DialogPane dialogPane = alert.getDialogPane();
         dialogPane.getStylesheets().add(
                 getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
@@ -306,6 +312,9 @@ public class Main extends Application {
         dialogPane.getStylesheets().add(
                 getClass().getResource("/src/main/resources/css/main.css").toExternalForm());
         dialogPane.getStyleClass().add("dialogFolder");
+        Stage stage = (Stage) alert.getDialogPane().getScene().getWindow();
+        stage.getIcons().add(
+                new Image(this.getClass().getResource("/src/main/resources/images/confirm.png").toString()));
         return alert;
     }
 

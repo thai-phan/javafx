@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -320,6 +321,8 @@ public class CommunicationManagerController extends Main {
         ExplainListController explainListController = loader.getController();
         explainListController.initTableExplain(currentDatabase, currentView);
         newStage.setScene(new Scene(root));
+        newStage.getIcons().add(
+                new Image(this.getClass().getResource("/src/main/resources/images/explain.png").toString()));
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
     }
@@ -675,7 +678,6 @@ public class CommunicationManagerController extends Main {
                 databaseListObj.getResultListTable().getDbNames().forEach(index -> databaseList.add(index.getDbname()));
                 databaseListComboBox.setItems(databaseList);
                 loadSelectedDatabaseAndView();
-
             } else if (databaseListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
                 logoutByExpireSession(urlForLoadDatabaseList);
             } else if (databaseListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && databaseListObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
