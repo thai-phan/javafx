@@ -322,7 +322,7 @@ public class CommunicationManagerController extends Main {
         explainListController.initTableExplain(currentDatabase, currentView);
         newStage.setScene(new Scene(root));
         newStage.getIcons().add(
-                new Image(this.getClass().getResource("/src/main/resources/images/explain.png").toString()));
+                new Image(this.getClass().getResource("/main/resources/images/explain.png").toString()));
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
     }

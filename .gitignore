@@ -12,3 +12,4 @@
 /.settings
 inno_config.iss
 launch4j_config.xml
+config.properties

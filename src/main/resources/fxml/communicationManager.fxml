@@ -19,7 +19,7 @@
 
 <BorderPane prefHeight="849.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CommunicationManagerController">
     <stylesheets>
-        <URL value="@/src/main/resources/css/main.css" />
+        <URL value="@../css/main.css" />
     </stylesheets>
     <center>
       <ScrollPane fitToHeight="true" fitToWidth="true">
