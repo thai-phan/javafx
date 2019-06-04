@@ -16,7 +16,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="349.0" prefWidth="600.0" styleClass="login" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.LoginController">
+<BorderPane prefHeight="349.0" prefWidth="600.0" styleClass="login" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.LoginController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>

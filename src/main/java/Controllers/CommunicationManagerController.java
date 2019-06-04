@@ -416,7 +416,7 @@ public class CommunicationManagerController extends Main {
         if (isView) {
             namePane.setDisable(true);
             datePane.setDisable(true);
-            schedulePane.setDisable(true);
+                schedulePane.setDisable(true);
             channelPane.setDisable(true);
             databaseListComboBox.setDisable(true);
             viewListComboBox.setDisable(true);
@@ -449,10 +449,8 @@ public class CommunicationManagerController extends Main {
             }
         };
         loadingStage.show();
-
         newTask.setOnSucceeded(response -> {
             String responseForCampaignInfo = (String) response.getSource().getValue();
-            lg(responseForCampaignInfo);
             CampaignInfoModel campaignInfoObj = gson.fromJson(responseForCampaignInfo, CampaignInfoModel.class);
             if (campaignInfoObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignInfoObj.getResultList().getCms().size() > 0) {
                 Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);

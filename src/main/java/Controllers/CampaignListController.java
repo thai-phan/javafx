@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -87,6 +88,8 @@ public class CampaignListController extends Main
     private Button copyCampButton;
     @FXML
     private Button viewCampButton;
+    @FXML
+    private Button moveCampButton;
     @FXML
     private Button launchScheduleButton;
 
@@ -216,9 +219,29 @@ public class CampaignListController extends Main
         CmDatas selectedCampaign = campaignTableView.getSelectionModel().getSelectedItem();
         folderSelectionController.setOldCampId(selectedCampaign.getEntity_Id());
         folderSelectionController.setCampaignListController(this);
+        folderSelectionController.setIsCopy(true);
         folderSelectionController.getSelectedCampNameAndDescription(selectedCampaign.getName(), selectedCampaign.getDescription());
         newStage.getIcons().add(new Image("/main/resources/images/copy.png"));
         newStage.setTitle("Copy campaign");
+        newStage.setScene(new Scene(root));
+        newStage.initModality(Modality.APPLICATION_MODAL);
+        newStage.showAndWait();
+    }
+
+    @FXML
+    public void onMoveCampaign() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(FOLDER_SELECTION));
+        Region root = loader.load();
+        Stage newStage = new Stage();
+        FolderSelectionController folderSelectionController = loader.getController();
+        folderSelectionController.loadTreeFolderList(masterFolderComboBox);
+        CmDatas selectedCampaign = campaignTableView.getSelectionModel().getSelectedItem();
+        folderSelectionController.setOldCampId(selectedCampaign.getEntity_Id());
+        folderSelectionController.setCampaignListController(this);
+        folderSelectionController.setIsCopy(false);
+        folderSelectionController.getSelectedCampNameAndDescription(selectedCampaign.getName(), selectedCampaign.getDescription());
+        newStage.getIcons().add(new Image("/main/resources/images/move.png"));
+        newStage.setTitle("Move campaign");
         newStage.setScene(new Scene(root));
         newStage.initModality(Modality.APPLICATION_MODAL);
         newStage.showAndWait();
@@ -315,11 +338,12 @@ public class CampaignListController extends Main
         copyCampButton.disableProperty().bind(status.isEqualTo(STATUS_NULL).or(status.isEqualTo(STATUS_DEFAULT)));
         viewCampButton.disableProperty().bind(status.isEqualTo(STATUS_DEFAULT));
         launchScheduleButton.disableProperty().bind(status.isNotEqualTo(STATUS_ACTIVE));
+        moveCampButton.disableProperty().bind(status.isEqualTo(STATUS_NULL).or(status.isEqualTo(STATUS_DEFAULT)));
     }
 
     private void addListener() {
         masterFolderComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (oldVal != null) {
+            if (oldVal != null && newVal != null) {
                 selectedMasterFolder = newVal;
                 loadSubFolderListOnTree(false);
             }
@@ -427,25 +451,23 @@ public class CampaignListController extends Main
         String statusId = statusListComboBox.getSelectionModel().getSelectedItem().getId() != null ?
                 statusListComboBox.getSelectionModel().getSelectedItem().getId() : "";
         String nameSearch = campaignSearch.getText() != null ? campaignSearch.getText() : "";
-        String urlForCampaignList = null;
+        AtomicReference<String> urlForCampaignList = new AtomicReference<>("");
         try {
-            urlForCampaignList = SERVER_URL + "/cm/list?link_id=" + linkId + "&folderid=" + subFolderId +
-                    "&statuscd=" + statusId + "&cmname=" + URLEncoder.encode(nameSearch, "UTF-8");
+            urlForCampaignList.set(SERVER_URL + "/cm/list?link_id=" + linkId + "&folderid=" + subFolderId +
+                    "&statuscd=" + statusId + "&cmname=" + URLEncoder.encode(nameSearch, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
 
-        String finalUrlForCampaignList = urlForCampaignList;
         Task<String> newTask = new Task<String>() {
             @Override
             public String call() {
-                return getResponseFromAPI(finalUrlForCampaignList);
+                return getResponseFromAPI(urlForCampaignList.get());
             }
         };
         loadingStage.show();
         newTask.setOnSucceeded(response -> {
             String responseForCampList = (String) response.getSource().getValue();
-            lg(responseForCampList);
             CampaignListModel campListObj = gson.fromJson(responseForCampList, CampaignListModel.class);
             if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() > 0) {
                 ObservableList<CmDatas> campListObs = FXCollections.observableArrayList();
@@ -475,9 +497,9 @@ public class CampaignListController extends Main
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() == 0) {
                 createNotificationDialog("Campaign list empty", null, null);
             } else if (campListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-                logoutByExpireSession(finalUrlForCampaignList);
+                logoutByExpireSession(urlForCampaignList.get());
             } else if (campListObj.getResultinfo().getErrCd() != API_CODE_SUCCESS){
-                createNotificationDialog(ERROR_HEADER, campListObj.getResultinfo().getErrString(), finalUrlForCampaignList);
+                createNotificationDialog(ERROR_HEADER, campListObj.getResultinfo().getErrString(), urlForCampaignList.get());
             }
             loadingStage.hide();
         });

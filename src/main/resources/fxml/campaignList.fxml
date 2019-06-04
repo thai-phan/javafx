@@ -141,6 +141,11 @@
                                   <Insets left="5.0" right="5.0" />
                                </HBox.margin>
                             </Button>
+                             <Button fx:id="moveCampButton" layoutX="110.0" layoutY="19.0" onAction="#onMoveCampaign" prefHeight="36.0" prefWidth="90.0" text="Move">
+                                 <HBox.margin>
+                                     <Insets left="5.0" right="5.0" />
+                                 </HBox.margin>
+                             </Button>
                          </children>
                       </HBox>
                    </left>

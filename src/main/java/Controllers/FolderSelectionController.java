@@ -6,14 +6,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import main.java.Main;
 import main.java.Models.ModelObject.ControlBindingObj;
 import main.java.Models.ModelObject.Resultinfo;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 public class FolderSelectionController extends Main {
@@ -25,9 +26,17 @@ public class FolderSelectionController extends Main {
     private TreeView<ControlBindingObj> selectionFolderTree;
     @FXML
     private Button duplicateBtn;
+    @FXML
+    private VBox campaignInfo;
+
     private CampaignListController campaignListController;
     private Stage currentStage;
     private String oldCampId;
+    private boolean isCopy;
+
+    public void setIsCopy(boolean copy) {
+        isCopy = copy;
+    }
 
     public void setOldCampId(String oldCampId) {
         this.oldCampId = oldCampId;
@@ -42,35 +51,51 @@ public class FolderSelectionController extends Main {
     }
 
     void getSelectedCampNameAndDescription(String name, String description) {
-        newName.setText("Copy Of " + name);
-        newDescription.setText(description);
+        if (isCopy) {
+            newName.setText("Copy Of " + name);
+            newDescription.setText(description);
+        } else {
+            campaignInfo.setVisible(false);
+            campaignInfo.setManaged(false);
+        }
     }
 
     @FXML
-    public void onDuplicateCampaign() {
-        String newCampName = newName.getText();
-        String newCampDescription = newDescription.getText();
+    public void onInteractCampaign() {
+        String campName = newName.getText();
+        String campDescription = newDescription.getText();
         if (selectionFolderTree.getSelectionModel().isEmpty() || !selectionFolderTree.getSelectionModel().getSelectedItem().isLeaf()) {
             createNotificationDialog("Please select sub folder", null, null);
             return;
         }
         String newFolderId = selectionFolderTree.getSelectionModel().getSelectedItem().getValue().getId();
-        String urlForDuplicateCampaign = null;
-        try {
-            urlForDuplicateCampaign = SERVER_URL + "/cm/copy?link_id=" + linkId + "&old_cm_id=" + getOldCampId()
-                    + "&name=" + URLEncoder.encode(newCampName, "utf-8") + "&desc=" + URLEncoder.encode(newCampDescription, "utf-8")
-                    + "&folderid=" + newFolderId;
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        String finalUrlForDuplicateCampaign = urlForDuplicateCampaign;
-        Task<String> newTask = new Task<String>() {
-            @Override
-            public String call() throws IOException {
-                return getResponseFromAPI(finalUrlForDuplicateCampaign);
-
+        Task<String> newTask;
+        AtomicReference<String> urlForInteractCampaign = new AtomicReference<>("");
+        if (isCopy) {
+            try {
+                urlForInteractCampaign.set(SERVER_URL + "/cm/copy?link_id=" + linkId + "&old_cm_id=" + getOldCampId()
+                        + "&name=" + URLEncoder.encode(campName, "utf-8") + "&desc=" + URLEncoder.encode(campDescription, "utf-8")
+                        + "&folderid=" + newFolderId);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
             }
-        };
+            newTask = new Task<String>() {
+                @Override
+                public String call() {
+                    return getResponseFromAPI(urlForInteractCampaign.get());
+
+                }
+            };
+        } else {
+            urlForInteractCampaign.set(SERVER_URL + "/cm/tofolder?link_id=" + linkId + "&cm_id=" + getOldCampId()
+                    + "&folderid=" + newFolderId);
+            newTask = new Task<String>() {
+                @Override
+                public String call() {
+                    return getResponseFromAPI(urlForInteractCampaign.get());
+                }
+            };
+        }
         loadingStage.show();
         newTask.setOnSucceeded(event -> {
             Resultinfo resultinfo = gson.fromJson((String) event.getSource().getValue(), Resultinfo.class);
@@ -86,17 +111,15 @@ public class FolderSelectionController extends Main {
                     currentStage.close();
                     break;
                 case API_CODE_LOGOUT:
-                    logoutByExpireSession(finalUrlForDuplicateCampaign);
+                    logoutByExpireSession(urlForInteractCampaign.get());
                     break;
                 default:
-                    createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), finalUrlForDuplicateCampaign);
+                    createNotificationDialog(ERROR_HEADER, resultinfo.getErrString(), urlForInteractCampaign.get());
                     break;
             }
             loadingStage.hide();
         });
-
         new Thread(newTask).start();
-
     }
 
     @FXML

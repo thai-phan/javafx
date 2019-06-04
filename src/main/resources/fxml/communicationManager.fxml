@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="849.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CommunicationManagerController">
+<BorderPane prefHeight="849.0" prefWidth="1920.0" styleClass="app" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CommunicationManagerController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -405,13 +405,13 @@
                         </BorderPane>
                      </center>
                      <right>
-                        <VBox prefHeight="313.0" prefWidth="545.0" BorderPane.alignment="CENTER">
+                        <VBox prefHeight="313.0" prefWidth="900.0" BorderPane.alignment="CENTER">
                            <children>
                               <BorderPane fx:id="channelPane" prefHeight="159.0" prefWidth="535.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
                                  <center>
-                                    <VBox BorderPane.alignment="CENTER">
+                                    <VBox prefHeight="157.0" prefWidth="437.0" BorderPane.alignment="CENTER">
                                        <children>
-                                          <HBox prefHeight="22.0" prefWidth="276.0">
+                                          <HBox prefHeight="22.0" prefWidth="360.0">
                                              <VBox.margin>
                                                 <Insets bottom="5.0" top="5.0" />
                                              </VBox.margin>
@@ -427,7 +427,7 @@
                                     </VBox>
                                  </center>
                                  <right>
-                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
+                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="157.0" prefWidth="125.0" BorderPane.alignment="CENTER">
                                        <children>
                                           <Button fx:id="saveChannelBtn" mnemonicParsing="false" onAction="#onSaveChannel" prefHeight="36.0" prefWidth="100.0" text="Save" />
                                        </children>
@@ -442,7 +442,7 @@
                               </BorderPane>
                               <BorderPane fx:id="commClassPane" layoutX="10.0" layoutY="10.0" prefHeight="143.0" prefWidth="535.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
                                  <center>
-                                    <VBox>
+                                    <VBox prefHeight="141.0" prefWidth="492.0">
                                        <children>
                                           <HBox>
                                              <VBox.margin>
@@ -460,7 +460,7 @@
                                     </VBox>
                                  </center>
                                  <right>
-                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
+                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="141.0" prefWidth="125.0" BorderPane.alignment="CENTER">
                                        <children>
                                           <Button fx:id="saveCommClassBtn" mnemonicParsing="false" onAction="#onSaveCommClass" prefHeight="36.0" prefWidth="100.0" text="Save" />
                                        </children>

@@ -113,7 +113,7 @@ public class LoginController extends Main {
                         createNotificationDialog(LOGIN_FAIL, null, null);
                     }
                 }
-                loadingStage.close();
+                loadingStage.hide();
             });
             new Thread(newTask).start();
         }
