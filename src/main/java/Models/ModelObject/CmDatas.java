@@ -17,10 +17,13 @@ public class CmDatas {
     private String component_Type_Cd;
     private String finder_custom_column1;
     private String finder_custom_column2;
+    private String comm_class_id;
+    private String comm_class_name;
 
     public CmDatas(String name, String description, String status_Cd_name,
                    String path, String create_User, String create_Dttm,
-                   String update_User, String update_Dttm, String entity_Id, String status_Cd) {
+                   String update_User, String update_Dttm, String entity_Id, String status_Cd,
+                   String comm_class_id, String comm_class_name) {
         this.name = name;
         this.description = description;
         this.status_Cd_name = status_Cd_name;
@@ -31,6 +34,8 @@ public class CmDatas {
         this.update_Dttm = update_Dttm;
         this.entity_Id = entity_Id;
         this.status_Cd = status_Cd;
+        this.comm_class_id = comm_class_id;
+        this.comm_class_name = comm_class_name;
     }
 
     public void setName(String name) {
@@ -159,6 +164,22 @@ public class CmDatas {
 
     public String getString() {
         return string;
+    }
+
+    public void setComm_class_id(String comm_class_id) {
+        this.comm_class_id = comm_class_id;
+    }
+
+    public String getComm_class_id() {
+        return comm_class_id;
+    }
+
+    public void setComm_class_name(String comm_class_name) {
+        this.comm_class_name = comm_class_name;
+    }
+
+    public String getComm_class_name() {
+        return comm_class_name;
     }
 }
 

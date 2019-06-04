@@ -66,6 +66,8 @@ public class CampaignListController extends Main
     @FXML
     private TableColumn<CmDatas, String> campClModOn;
     @FXML
+    private TableColumn<CmDatas, String> campClCommClass;
+    @FXML
     private Text recordsNumber;
     @FXML
     private TextField campaignSearch;
@@ -300,7 +302,7 @@ public class CampaignListController extends Main
         campClCreOn.setCellValueFactory(new PropertyValueFactory<>("create_Dttm"));
         campClModBy.setCellValueFactory(new PropertyValueFactory<>("update_User"));
         campClModOn.setCellValueFactory(new PropertyValueFactory<>("update_Dttm"));
-
+        campClCommClass.setCellValueFactory(new PropertyValueFactory<>("comm_class_name"));
         bindStatusForCommandButton();
     }
 
@@ -441,8 +443,9 @@ public class CampaignListController extends Main
             }
         };
         loadingStage.show();
-        newTask.setOnSucceeded(event -> {
-            String responseForCampList = (String) event.getSource().getValue();
+        newTask.setOnSucceeded(response -> {
+            String responseForCampList = (String) response.getSource().getValue();
+            lg(responseForCampList);
             CampaignListModel campListObj = gson.fromJson(responseForCampList, CampaignListModel.class);
             if (campListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campListObj.getCmList().getCmDatas().size() > 0) {
                 ObservableList<CmDatas> campListObs = FXCollections.observableArrayList();
@@ -450,7 +453,8 @@ public class CampaignListController extends Main
                         add(new CmDatas(index.getName(),
                                 index.getDescription(), index.getStatus_Cd_name(), index.getPath(),
                                 index.getCreate_User(), index.getCreate_Dttm(), index.getUpdate_User(),
-                                index.getUpdate_Dttm(), index.getEntity_Id(), index.getStatus_Cd())));
+                                index.getUpdate_Dttm(), index.getEntity_Id(), index.getStatus_Cd(),
+                                index.getComm_class_id(), index.getComm_class_name())));
                 campaignTableView.setItems(campListObs);
                 if (selectedCampaign != null) {
                     CmDatas campaign = campaignTableView.getItems().stream()

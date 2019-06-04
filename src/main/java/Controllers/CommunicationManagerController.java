@@ -63,6 +63,8 @@ public class CommunicationManagerController extends Main {
     @FXML
     private ComboBox<ControlBindingObj> channelListComboBox;
     @FXML
+    private ComboBox<ControlBindingObj> commClassListComboBox;
+    @FXML
     private ComboBox<String> databaseListComboBox;
     @FXML
     private ComboBox<String> viewListComboBox;
@@ -107,6 +109,8 @@ public class CommunicationManagerController extends Main {
     @FXML
     private Button saveChannelBtn;
     @FXML
+    private Button saveCommClassBtn;
+    @FXML
     private TextField resendNumberDay;
     @FXML
     private BorderPane namePane;
@@ -116,6 +120,8 @@ public class CommunicationManagerController extends Main {
     private BorderPane schedulePane;
     @FXML
     private BorderPane channelPane;
+    @FXML
+    private BorderPane commClassPane;
 
     private ControlBindingObj firstOrdinal = new ControlBindingObj("First", "1");
     private ControlBindingObj secondOrdinal = new ControlBindingObj("Second", "2");
@@ -297,6 +303,20 @@ public class CommunicationManagerController extends Main {
     }
 
     @FXML
+    private void onSaveCommClass() {
+        Alert alert = createAlert("Confirm to Save");
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == ButtonType.OK) {
+            String commClassId = commClassListComboBox.getSelectionModel().getSelectedItem().getId();
+            String url = SERVER_URL + "/cm/change/commcls?link_id=" + linkId + "&cm_id=" + getCampaignId()
+                    + "&comm_cls_id=" + commClassId;
+            String response = getResponseFromAPI(url);
+            Resultinfo resultinfo = gson.fromJson(response, Resultinfo.class);
+            notificationForAction(resultinfo, null);
+        }
+    }
+
+    @FXML
     private void onSaveCampDatabase() {
         Alert alert = createAlert("Confirm to Save");
         Optional<ButtonType> result = alert.showAndWait();
@@ -339,6 +359,7 @@ public class CommunicationManagerController extends Main {
             saveCampFreqBtn.setManaged(false);
             saveCampDbBtn.setManaged(false);
             saveChannelBtn.setManaged(false);
+            saveCommClassBtn.setManaged(false);
         } else {
             monthlyOrdinalCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not());
             monthlyDayCombo.disableProperty().bind(monthlyDayRadio.selectedProperty().not().or(monthlyOrdinalCombo.valueProperty().isEqualTo(lastDayOrdinal)));
@@ -399,6 +420,7 @@ public class CommunicationManagerController extends Main {
             channelPane.setDisable(true);
             databaseListComboBox.setDisable(true);
             viewListComboBox.setDisable(true);
+            commClassPane.setDisable(true);
         }
     }
 
@@ -430,6 +452,7 @@ public class CommunicationManagerController extends Main {
 
         newTask.setOnSucceeded(response -> {
             String responseForCampaignInfo = (String) response.getSource().getValue();
+            lg(responseForCampaignInfo);
             CampaignInfoModel campaignInfoObj = gson.fromJson(responseForCampaignInfo, CampaignInfoModel.class);
             if (campaignInfoObj.getResultinfo().getErrCd() == API_CODE_SUCCESS && campaignInfoObj.getResultList().getCms().size() > 0) {
                 Cms campaign =  campaignInfoObj.getResultList().getCms().get(0);
@@ -441,6 +464,7 @@ public class CommunicationManagerController extends Main {
                 planComEnd.setValue(!StringUtils.isEmpty(campaign.getPlanned_Communication_End_Dt()) ? LocalDate.parse(campaign.getPlanned_Communication_End_Dt()) : localDate);
                 resendNumberDay.setText(!StringUtils.isEmpty(campaign.getDeduplication_Days_Num()) ? campaign.getDeduplication_Days_Num() : "0");
                 loadChannelList(campaign.getChannel_INSTANCE_ID());
+                loadCommClassList(campaign.getComm_Class_Id());
             } else if(campaignInfoObj.getResultinfo().getErrCd() == API_CODE_LOGOUT){
                 logoutByExpireSession(urlForCampaignInfo);
             } else if (campaignInfoObj.getResultinfo().getErrCd() != API_CODE_SUCCESS && campaignInfoObj.getResultinfo().getErrCd() != API_CODE_LOGOUT){
@@ -487,10 +511,20 @@ public class CommunicationManagerController extends Main {
 
     private void loadChannelList(String channelId) {
         String urlForChannelList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=3";
+        loadDataToComboBox(urlForChannelList, channelId, channelListComboBox);
+    }
+
+    private void loadCommClassList(String commClassId) {
+        String urlForCommClassList = SERVER_URL + "/dbs/list/cd?link_id=" + linkId + "&cdtype=4";
+        loadDataToComboBox(urlForCommClassList, commClassId, commClassListComboBox);
+
+    }
+
+    private void loadDataToComboBox(String url, String id, ComboBox<ControlBindingObj> CBox) {
         Task<String> newTask = new Task<String>() {
             @Override
             public String call() {
-                return getResponseFromAPI(urlForChannelList);
+                return getResponseFromAPI(url);
             }
         };
         loadingStage.show();
@@ -501,24 +535,25 @@ public class CommunicationManagerController extends Main {
             if (statusListObj.getResultinfo().getErrCd() == API_CODE_SUCCESS) {
                 ObservableList<ControlBindingObj> channelList = FXCollections.observableArrayList();
                 statusListObj.getCdList().getCds().forEach(index -> channelList.add(new ControlBindingObj(index.getName(), index.getCd())));
-                channelListComboBox.setItems(channelList);
-                if (!StringUtils.isEmpty(channelId)) {
-                    ControlBindingObj selectedChannel = channelListComboBox.getItems().stream().filter(index -> index.getId().equals(channelId)).findAny().orElse(null);
+                CBox.setItems(channelList);
+                if (!StringUtils.isEmpty(id)) {
+                    ControlBindingObj selectedChannel = CBox.getItems().stream().filter(index -> index.getId().equals(id)).findAny().orElse(null);
                     if (selectedChannel != null) {
-                        channelListComboBox.getSelectionModel().select(selectedChannel);
+                        CBox.getSelectionModel().select(selectedChannel);
                     } else {
-                        channelListComboBox.getSelectionModel().selectFirst();
+                        CBox.getSelectionModel().selectFirst();
                     }
                 } else {
-                    channelListComboBox.getSelectionModel().selectFirst();
+                    CBox.getSelectionModel().selectFirst();
                 }
             } else if(statusListObj.getResultinfo().getErrCd() == API_CODE_LOGOUT) {
-                logoutByExpireSession(urlForChannelList);
+                logoutByExpireSession(url);
             }
             loadingStage.hide();
         });
         new Thread(newTask).start();
     }
+
     private void loadFrequencyDetail() {
         String urlForFrequencyDetail = SERVER_URL + "/sch/info/cm?link_id=" + linkId + "&cm_id=" + getCampaignId();
 

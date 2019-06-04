@@ -14,7 +14,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="668.0" prefWidth="1443.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CampaignListController">
+<BorderPane prefHeight="668.0" prefWidth="1443.0" style="-fx-border-color: gray;" styleClass="app" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CampaignListController">
   <stylesheets>
       <URL value="@../css/main.css" />
   </stylesheets>
@@ -68,14 +68,15 @@
                   <TableView fx:id="campaignTableView">
                    <columns>
                       <TableColumn fx:id="campClName" prefWidth="174.0" text="Name" />
-                      <TableColumn fx:id="campClDesc" minWidth="0.0" prefWidth="345.0" text="Description" />
-                      <TableColumn fx:id="campClStatus" prefWidth="169.0" text="Status" />
-                      <TableColumn fx:id="campClFolder" prefWidth="284.0" text="Folder" />
-                      <TableColumn fx:id="campClCreBy" prefWidth="156.0" text="Created By" />
-                      <TableColumn fx:id="campClCreOn" prefWidth="146.0" text="Created On" />
-                      <TableColumn fx:id="campClModBy" prefWidth="142.0" text="Modified By" />
-                      <TableColumn fx:id="campClModOn" prefWidth="144.0" text="Modified On" />
-                       <TableColumn fx:id="campClId" prefWidth="120.0" text="ID" />
+                      <TableColumn fx:id="campClDesc" minWidth="0.0" prefWidth="343.0" text="Description" />
+                      <TableColumn fx:id="campClStatus" prefWidth="120.0" text="Status" />
+                      <TableColumn fx:id="campClFolder" prefWidth="172.0" text="Folder" />
+                      <TableColumn fx:id="campClCreBy" prefWidth="110.0" text="Created By" />
+                      <TableColumn fx:id="campClCreOn" prefWidth="175.0" text="Created On" />
+                      <TableColumn fx:id="campClModBy" prefWidth="110.0" text="Modified By" />
+                      <TableColumn fx:id="campClModOn" prefWidth="175.0" text="Modified On" />
+                       <TableColumn fx:id="campClId" prefWidth="110.0" text="ID" />
+                       <TableColumn fx:id="campClCommClass" prefWidth="200.0" text="Comm Class" />
                    </columns>
                 </TableView>
              </center>
@@ -175,12 +176,15 @@
                    <children>
                       <HBox alignment="CENTER_LEFT" prefWidth="450.0">
                          <children>
-                               <Text text="Name" textAlignment="CENTER" wrappingWidth="50.0">
-                               <HBox.margin>
-                                  <Insets right="5.0" />
-                               </HBox.margin>
-                            </Text>
-                            <TextField fx:id="campaignSearch" prefHeight="37.0" prefWidth="285.0">
+                              <HBox alignment="CENTER_RIGHT" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                                 <children>
+                                     <Text text="Name" textAlignment="CENTER" />
+                                 </children>
+                              </HBox>
+                            <TextField fx:id="campaignSearch" prefHeight="37.0" prefWidth="290.0">
                                <HBox.margin>
                                   <Insets left="5.0" right="5.0" />
                                </HBox.margin>
@@ -189,12 +193,15 @@
                       </HBox>
                       <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="450.0">
                          <children>
-                            <Text text="Status" textAlignment="CENTER" wrappingWidth="58.0">
-                               <HBox.margin>
-                                  <Insets left="5.0" right="5.0" />
-                               </HBox.margin>
-                            </Text>
-                            <ComboBox fx:id="statusListComboBox" prefHeight="37.0" prefWidth="285.0">
+                              <HBox alignment="CENTER_RIGHT" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="5.0" />
+                                 </HBox.margin>
+                                 <children>
+                                  <Text text="Status" textAlignment="CENTER" />
+                                 </children>
+                              </HBox>
+                            <ComboBox fx:id="statusListComboBox" prefHeight="37.0" prefWidth="290.0">
                                <HBox.margin>
                                   <Insets left="5.0" right="5.0" />
                                </HBox.margin>

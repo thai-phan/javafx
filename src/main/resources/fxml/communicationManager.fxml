@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<BorderPane prefHeight="849.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="main.java.Controllers.CommunicationManagerController">
+<BorderPane prefHeight="849.0" prefWidth="1366.0" styleClass="app" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.Controllers.CommunicationManagerController">
     <stylesheets>
         <URL value="@../css/main.css" />
     </stylesheets>
@@ -94,11 +94,14 @@
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="550.0">
                                        <children>
-                                          <Text text="Start" textAlignment="RIGHT" wrappingWidth="90.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
-                                          </Text>
+                                             <children>
+                                                <Text text="Start" textAlignment="RIGHT" />
+                                             </children>
+                                          </HBox>
                                           <DatePicker fx:id="actlComStart" prefHeight="37.0" prefWidth="420.0">
                                              <HBox.margin>
                                                 <Insets />
@@ -108,11 +111,14 @@
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" prefWidth="550.0">
                                        <children>
-                                          <Text text="End" textAlignment="RIGHT" wrappingWidth="90.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
-                                          </Text>
+                                             <children>
+                                                <Text text="End" textAlignment="RIGHT" />
+                                             </children>
+                                          </HBox>
                                           <DatePicker fx:id="actlComEnd" prefHeight="37.0" prefWidth="420.0" />
                                        </children>
                                     </HBox>
@@ -127,21 +133,27 @@
                                  <children>
                                     <HBox alignment="CENTER_LEFT" prefWidth="550.0">
                                        <children>
-                                          <Text text="Start" textAlignment="RIGHT" wrappingWidth="90.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
-                                          </Text>
+                                             <children>
+                                                <Text text="Start" textAlignment="RIGHT" />
+                                             </children>
+                                          </HBox>
                                           <DatePicker fx:id="planComStart" prefHeight="37.0" prefWidth="420.0" />
                                        </children>
                                     </HBox>
                                     <HBox alignment="CENTER_LEFT" prefWidth="550.0">
                                        <children>
-                                          <Text text="End" textAlignment="RIGHT" wrappingWidth="90.0">
+                                          <HBox alignment="CENTER_RIGHT" prefWidth="90.0">
                                              <HBox.margin>
                                                 <Insets right="5.0" />
                                              </HBox.margin>
-                                          </Text>
+                                             <children>
+                                                <Text text="End" textAlignment="RIGHT" />
+                                             </children>
+                                          </HBox>
                                           <DatePicker fx:id="planComEnd" prefHeight="37.0" prefWidth="420.0" />
                                        </children>
                                     </HBox>
@@ -179,246 +191,291 @@
                         </HBox>
                      </right>
                   </BorderPane>
-                  <BorderPane fx:id="schedulePane" prefHeight="301.0" prefWidth="1344.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                  <BorderPane prefHeight="313.0" prefWidth="1344.0">
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
                      <center>
-                        <VBox prefHeight="460.0">
-                           <children>
-                              <VBox prefHeight="207.0" prefWidth="879.0">
+                        <BorderPane fx:id="schedulePane" prefHeight="313.0" prefWidth="778.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                           <right>
+                              <HBox alignment="BOTTOM_RIGHT" prefHeight="463.0" prefWidth="125.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="879.0">
-                                       <children>
-                                          <Text text="Frequency" textAlignment="RIGHT" wrappingWidth="220.0">
-                                             <HBox.margin>
-                                                <Insets right="5.0" />
-                                             </HBox.margin>
-                                          </Text>
-                                          <ComboBox fx:id="frequencyComboBox" prefHeight="37.0" prefWidth="290.0">
-                                             <HBox.margin>
-                                                <Insets left="5.0" right="5.0" />
-                                             </HBox.margin>
-                                          </ComboBox>
-                                       </children>
-                                       <opaqueInsets>
-                                          <Insets />
-                                       </opaqueInsets>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" prefHeight="54.0">
-                                       <children>
-                                          <Text text="Start Date" textAlignment="RIGHT" wrappingWidth="220.0">
-                                             <HBox.margin>
-                                                <Insets right="5.0" />
-                                             </HBox.margin>
-                                          </Text>
-                                          <DatePicker fx:id="freqStart" prefHeight="37.0" prefWidth="290.0">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </DatePicker>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="390.0">
-                                       <children>
-                                          <RadioButton fx:id="endDateRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="End Date" textAlignment="JUSTIFY">
-                                             <toggleGroup>
-                                                <ToggleGroup fx:id="frequencyDefault" />
-                                             </toggleGroup>
-                                             <HBox.margin>
-                                                <Insets right="5.0" />
-                                             </HBox.margin>
-                                          </RadioButton>
-                                          <DatePicker fx:id="freqEnd" prefHeight="37.0" prefWidth="290.0">
-                                             <HBox.margin>
-                                                <Insets left="5.0" />
-                                             </HBox.margin>
-                                          </DatePicker>
-                                       </children>
-                                    </HBox>
-                                    <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="84.0" prefHeight="50.0" prefWidth="390.0">
-                                       <children>
-                                          <RadioButton fx:id="noEndDateRadio" mnemonicParsing="false" prefWidth="220.0" text="No End Date" toggleGroup="$frequencyDefault" />
-                                       </children>
-                                    </HBox>
+                                    <Button fx:id="saveCampFreqBtn" mnemonicParsing="false" onAction="#onSaveCampFrequencyOpt" prefHeight="36.0" prefWidth="100.0" text="Save" />
                                  </children>
-                              </VBox>
-                              <Separator prefWidth="200.0" />
-                              <Group>
+                                 <padding>
+                                    <Insets bottom="10.0" right="20.0" />
+                                 </padding>
+                              </HBox>
+                           </right>
+                           <center>
+                              <VBox prefHeight="311.0" prefWidth="656.0" BorderPane.alignment="CENTER">
                                  <children>
-                                    <VBox fx:id="weeklyOptionList" layoutX="387.0" prefHeight="83.0" prefWidth="613.0" visible="false">
+                                    <VBox prefHeight="207.0" prefWidth="602.0">
                                        <children>
-                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="41.0" prefHeight="44.0">
+                                          <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="576.0">
                                              <children>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select days:">
-                                                   <HBox.margin>
-                                                      <Insets left="25.0" right="15.0" />
-                                                   </HBox.margin>
-                                                </Text>
-                                                <CheckBox fx:id="weeklySundayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Sunday" />
-                                                <CheckBox fx:id="weeklyMondayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="102.0" text="Monday">
+                                                <HBox alignment="CENTER_RIGHT" prefWidth="220.0">
                                                    <HBox.margin>
                                                       <Insets right="5.0" />
                                                    </HBox.margin>
-                                                </CheckBox>
-                                                <CheckBox fx:id="weeklyTuesdayCheck" layoutX="101.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Tuesday">
+                                                   <children>
+                                                      <Text text="Frequency" textAlignment="CENTER" />
+                                                   </children>
+                                                </HBox>
+                                                <ComboBox fx:id="frequencyComboBox" prefHeight="37.0" prefWidth="290.0">
                                                    <HBox.margin>
-                                                      <Insets right="5.0" />
+                                                      <Insets left="5.0" right="5.0" />
                                                    </HBox.margin>
-                                                </CheckBox>
+                                                </ComboBox>
                                              </children>
-                                          </HBox>
-                                          <HBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="200.0">
-                                             <children>
-                                                <CheckBox fx:id="weeklyWednesdayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="131.0" text="Wednesday" />
-                                                <CheckBox fx:id="weeklyThursdayCheck" layoutX="101.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="111.0" text="Thursday">
-                                                   <HBox.margin>
-                                                      <Insets right="5.0" />
-                                                   </HBox.margin>
-                                                </CheckBox>
-                                                <CheckBox fx:id="weeklyFridayCheck" layoutX="92.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="94.0" text="Friday">
-                                                   <HBox.margin>
-                                                      <Insets right="5.0" />
-                                                   </HBox.margin>
-                                                </CheckBox>
-                                                <CheckBox fx:id="weeklySaturdayCheck" layoutX="139.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="109.0" text="Saturday">
-                                                   <HBox.margin>
-                                                      <Insets right="5.0" />
-                                                   </HBox.margin>
-                                                </CheckBox>
-                                             </children>
-                                             <VBox.margin>
+                                             <opaqueInsets>
                                                 <Insets />
-                                             </VBox.margin>
-                                             <padding>
-                                                <Insets left="27.0" />
-                                             </padding>
+                                             </opaqueInsets>
                                           </HBox>
-                                       </children>
-                                    </VBox>
-                                    <VBox fx:id="monthlyOptionList" layoutX="800.0" prefHeight="91.0" prefWidth="955.0" visible="false">
-                                       <children>
-                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="78.0" prefHeight="44.0" prefWidth="807.0">
+                                          <HBox alignment="CENTER_LEFT" prefHeight="54.0">
                                              <children>
-                                                <RadioButton fx:id="monthlyDayRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="On the ">
+                                                <HBox alignment="CENTER_RIGHT" prefWidth="220.0">
+                                                   <HBox.margin>
+                                                      <Insets right="5.0" />
+                                                   </HBox.margin>
+                                                   <children>
+                                                      <Text text="Start Date" textAlignment="RIGHT" />
+                                                   </children>
+                                                </HBox>
+                                                <DatePicker fx:id="freqStart" prefHeight="37.0" prefWidth="290.0">
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" />
+                                                   </HBox.margin>
+                                                </DatePicker>
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="50.0" prefWidth="390.0">
+                                             <children>
+                                                <RadioButton fx:id="endDateRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="End Date" textAlignment="JUSTIFY">
                                                    <toggleGroup>
-                                                      <ToggleGroup fx:id="frequencyMonthly" />
+                                                      <ToggleGroup fx:id="frequencyDefault" />
                                                    </toggleGroup>
                                                    <HBox.margin>
                                                       <Insets right="5.0" />
                                                    </HBox.margin>
                                                 </RadioButton>
-                                                <ComboBox fx:id="monthlyOrdinalCombo" prefHeight="37.0" prefWidth="290.0">
+                                                <DatePicker fx:id="freqEnd" prefHeight="37.0" prefWidth="290.0">
                                                    <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
+                                                      <Insets left="5.0" />
                                                    </HBox.margin>
-                                                </ComboBox>
-                                                <ComboBox fx:id="monthlyDayCombo" prefHeight="37.0" prefWidth="290.0">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </ComboBox>
+                                                </DatePicker>
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="44.0" prefWidth="200.0">
+                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="84.0" prefHeight="50.0" prefWidth="390.0">
                                              <children>
-                                                <RadioButton fx:id="monthlySpecificRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="On specific days" toggleGroup="$frequencyMonthly">
-                                                   <HBox.margin>
-                                                      <Insets right="5.0" />
-                                                   </HBox.margin>
-                                                </RadioButton>
-                                                <TextField fx:id="monthlyDateList" prefWidth="290.0">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </TextField>
+                                                <RadioButton fx:id="noEndDateRadio" mnemonicParsing="false" prefWidth="220.0" text="No End Date" toggleGroup="$frequencyDefault" />
                                              </children>
                                           </HBox>
                                        </children>
                                     </VBox>
-                                    <VBox fx:id="yearlyOptionList" layoutX="1000.0" prefHeight="59.0" prefWidth="796.0" visible="false">
+                                    <Separator prefWidth="200.0" />
+                                    <Group>
                                        <children>
-                                          <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="78.0" prefHeight="44.0" prefWidth="200.0">
+                                          <VBox fx:id="weeklyOptionList" layoutX="387.0" prefHeight="83.0" prefWidth="579.0">
                                              <children>
-                                                <ComboBox fx:id="yearlyOrdinalCombo" prefHeight="37.0" prefWidth="210.0">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </ComboBox>
-                                                <ComboBox fx:id="yearlyDayCombo" prefHeight="37.0" prefWidth="221.0">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </ComboBox>
-                                                <Text strokeType="OUTSIDE" strokeWidth="0.0" text="of">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </Text>
-                                                <ComboBox fx:id="yearlyMonthCombo" prefHeight="37.0" prefWidth="217.0">
-                                                   <HBox.margin>
-                                                      <Insets left="5.0" right="5.0" />
-                                                   </HBox.margin>
-                                                </ComboBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="41.0" prefHeight="44.0">
+                                                   <children>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Select days:">
+                                                         <HBox.margin>
+                                                            <Insets left="25.0" right="15.0" />
+                                                         </HBox.margin>
+                                                      </Text>
+                                                      <CheckBox fx:id="weeklySundayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Sunday" />
+                                                      <CheckBox fx:id="weeklyMondayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="102.0" text="Monday">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="weeklyTuesdayCheck" layoutX="101.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="100.0" text="Tuesday">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </CheckBox>
+                                                   </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" prefHeight="44.0" prefWidth="200.0">
+                                                   <children>
+                                                      <CheckBox fx:id="weeklyWednesdayCheck" mnemonicParsing="false" prefHeight="25.0" prefWidth="131.0" text="Wednesday" />
+                                                      <CheckBox fx:id="weeklyThursdayCheck" layoutX="101.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="111.0" text="Thursday">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="weeklyFridayCheck" layoutX="92.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="94.0" text="Friday">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </CheckBox>
+                                                      <CheckBox fx:id="weeklySaturdayCheck" layoutX="139.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="109.0" text="Saturday">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </CheckBox>
+                                                   </children>
+                                                   <VBox.margin>
+                                                      <Insets />
+                                                   </VBox.margin>
+                                                   <padding>
+                                                      <Insets left="27.0" />
+                                                   </padding>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="monthlyOptionList" layoutX="800.0" prefHeight="91.0" prefWidth="629.0" visible="false">
+                                             <children>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="78.0" prefHeight="44.0" prefWidth="574.0">
+                                                   <children>
+                                                      <RadioButton fx:id="monthlyDayRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="On the ">
+                                                         <toggleGroup>
+                                                            <ToggleGroup fx:id="frequencyMonthly" />
+                                                         </toggleGroup>
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </RadioButton>
+                                                      <ComboBox fx:id="monthlyOrdinalCombo" prefHeight="37.0" prefWidth="180.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </ComboBox>
+                                                      <ComboBox fx:id="monthlyDayCombo" prefHeight="37.0" prefWidth="180.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </ComboBox>
+                                                   </children>
+                                                </HBox>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="10.0" prefHeight="44.0" prefWidth="577.0">
+                                                   <children>
+                                                      <RadioButton fx:id="monthlySpecificRadio" mnemonicParsing="false" prefHeight="25.0" prefWidth="220.0" text="On specific days" toggleGroup="$frequencyMonthly">
+                                                         <HBox.margin>
+                                                            <Insets right="5.0" />
+                                                         </HBox.margin>
+                                                      </RadioButton>
+                                                      <TextField fx:id="monthlyDateList" prefWidth="290.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </TextField>
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                          <VBox fx:id="yearlyOptionList" layoutX="1000.0" prefHeight="59.0" prefWidth="622.0" visible="false">
+                                             <children>
+                                                <HBox alignment="CENTER_LEFT" layoutX="10.0" layoutY="78.0" prefHeight="44.0" prefWidth="200.0">
+                                                   <children>
+                                                      <ComboBox fx:id="yearlyOrdinalCombo" prefHeight="37.0" prefWidth="180.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </ComboBox>
+                                                      <ComboBox fx:id="yearlyDayCombo" prefHeight="37.0" prefWidth="180.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </ComboBox>
+                                                      <Text strokeType="OUTSIDE" strokeWidth="0.0" text="of">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </Text>
+                                                      <ComboBox fx:id="yearlyMonthCombo" prefHeight="37.0" prefWidth="180.0">
+                                                         <HBox.margin>
+                                                            <Insets left="5.0" right="5.0" />
+                                                         </HBox.margin>
+                                                      </ComboBox>
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </VBox>
+                                       </children>
+                                    </Group>
+                                 </children>
+                                 <padding>
+                                    <Insets left="20.0" right="20.0" />
+                                 </padding>
+                              </VBox>
+                           </center>
+                        </BorderPane>
+                     </center>
+                     <right>
+                        <VBox prefHeight="313.0" prefWidth="545.0" BorderPane.alignment="CENTER">
+                           <children>
+                              <BorderPane fx:id="channelPane" prefHeight="159.0" prefWidth="535.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                                 <center>
+                                    <VBox BorderPane.alignment="CENTER">
+                                       <children>
+                                          <HBox prefHeight="22.0" prefWidth="276.0">
+                                             <VBox.margin>
+                                                <Insets bottom="5.0" top="5.0" />
+                                             </VBox.margin>
+                                             <children>
+                                                <Text text="Channel" textAlignment="RIGHT" wrappingWidth="120.0" />
                                              </children>
                                           </HBox>
+                                          <ComboBox fx:id="channelListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                        </children>
+                                       <padding>
+                                          <Insets left="20.0" />
+                                       </padding>
                                     </VBox>
-                                 </children>
-                              </Group>
+                                 </center>
+                                 <right>
+                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <Button fx:id="saveChannelBtn" mnemonicParsing="false" onAction="#onSaveChannel" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" right="20.0" />
+                                       </padding>
+                                    </HBox>
+                                 </right>
+                                 <VBox.margin>
+                                    <Insets bottom="10.0" />
+                                 </VBox.margin>
+                              </BorderPane>
+                              <BorderPane fx:id="commClassPane" layoutX="10.0" layoutY="10.0" prefHeight="143.0" prefWidth="535.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
+                                 <center>
+                                    <VBox>
+                                       <children>
+                                          <HBox>
+                                             <VBox.margin>
+                                                <Insets bottom="5.0" top="5.0" />
+                                             </VBox.margin>
+                                             <children>
+                                                <Text text="Comm Class" textAlignment="RIGHT" wrappingWidth="120.0" />
+                                             </children>
+                                          </HBox>
+                                          <ComboBox fx:id="commClassListComboBox" prefHeight="37.0" prefWidth="290.0" />
+                                       </children>
+                                       <padding>
+                                          <Insets left="20.0" />
+                                       </padding>
+                                    </VBox>
+                                 </center>
+                                 <right>
+                                    <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
+                                       <children>
+                                          <Button fx:id="saveCommClassBtn" mnemonicParsing="false" onAction="#onSaveCommClass" prefHeight="36.0" prefWidth="100.0" text="Save" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="10.0" right="20.0" />
+                                       </padding>
+                                    </HBox>
+                                 </right>
+                              </BorderPane>
                            </children>
                            <padding>
-                              <Insets left="20.0" right="20.0" />
+                              <Insets left="10.0" />
                            </padding>
                         </VBox>
-                     </center>
-                     <right>
-                        <HBox alignment="BOTTOM_RIGHT" prefHeight="463.0" prefWidth="125.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <Button fx:id="saveCampFreqBtn" mnemonicParsing="false" onAction="#onSaveCampFrequencyOpt" prefHeight="36.0" prefWidth="100.0" text="Save" />
-                           </children>
-                           <padding>
-                              <Insets bottom="10.0" right="20.0" />
-                           </padding>
-                        </HBox>
                      </right>
-                     <VBox.margin>
-                        <Insets bottom="10.0" />
-                     </VBox.margin>
-                  </BorderPane>
-                  <BorderPane fx:id="channelPane" layoutX="20.0" layoutY="631.0" prefHeight="75.0" prefWidth="1344.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
-                     <center>
-                        <HBox alignment="CENTER_LEFT" prefHeight="74.0" prefWidth="1678.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <HBox alignment="CENTER_LEFT" layoutX="30.0" layoutY="10.0" prefHeight="75.0" prefWidth="400.0">
-                                 <children>
-                                    <Text text="Channel" textAlignment="RIGHT" wrappingWidth="80.0">
-                                       <HBox.margin>
-                                          <Insets right="5.0" />
-                                       </HBox.margin>
-                                    </Text>
-                                    <ComboBox fx:id="channelListComboBox" prefHeight="37.0" prefWidth="290.0" />
-                                 </children>
-                              </HBox>
-                              <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="340.0" />
-                              <HBox alignment="CENTER_LEFT" prefHeight="76.0" prefWidth="340.0" />
-                              <HBox alignment="CENTER" layoutX="599.0" layoutY="10.0" prefHeight="94.0" prefWidth="117.0" />
-                           </children>
-                           <padding>
-                              <Insets left="20.0" right="20.0" />
-                           </padding>
-                        </HBox>
-                     </center>
-                     <right>
-                        <HBox alignment="BOTTOM_RIGHT" prefHeight="100.0" prefWidth="125.0" BorderPane.alignment="CENTER">
-                           <children>
-                              <Button fx:id="saveChannelBtn" mnemonicParsing="false" onAction="#onSaveChannel" prefHeight="36.0" prefWidth="100.0" text="Save" />
-                           </children>
-                           <padding>
-                              <Insets bottom="10.0" right="20.0" />
-                           </padding>
-                        </HBox>
-                     </right>
-                     <VBox.margin>
-                        <Insets bottom="10.0" />
-                     </VBox.margin>
                   </BorderPane>
                   <BorderPane fx:id="dbPane" layoutX="20.0" layoutY="20.0" prefHeight="75.0" prefWidth="1344.0" style="-fx-border-color: gray; -fx-border-radius: 5;">
                       <center>
@@ -426,20 +483,27 @@
                               <children>
                                   <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="400.0">
                                       <children>
-                                          <Text text="Database" textAlignment="RIGHT" wrappingWidth="80.0">
+                                    <HBox alignment="CENTER_RIGHT" prefWidth="80.0">
                                        <HBox.margin>
                                           <Insets right="5.0" />
-                                       </HBox.margin></Text>
+                                       </HBox.margin>
+                                       <children>
+                                                <Text text="Database" textAlignment="RIGHT" />
+                                       </children>
+                                    </HBox>
                                           <ComboBox fx:id="databaseListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                       </children>
                                   </HBox>
                                   <HBox alignment="CENTER_LEFT" prefHeight="55.0" prefWidth="400.0">
                                       <children>
-                                          <Text text="View" textAlignment="RIGHT" wrappingWidth="80.0">
-                                       <HBox.margin>
+                                    <HBox alignment="CENTER_RIGHT" prefWidth="80.0">
+                                       <children>
+                                                <Text text="View" textAlignment="RIGHT" />
+                                       </children>
+                                       <padding>
                                           <Insets right="5.0" />
-                                       </HBox.margin>
-                                    </Text>
+                                       </padding>
+                                    </HBox>
                                           <ComboBox fx:id="viewListComboBox" prefHeight="37.0" prefWidth="290.0" />
                                       </children>
                                   </HBox>
